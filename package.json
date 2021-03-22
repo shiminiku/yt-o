@@ -10,7 +10,7 @@
     "url": "git+https://github.com/owatu1234/youtube-otosuyatu.git"
   },
   "author": "owatu",
-  "license": "",
+  "license": "cc0-1.0",
   "dependencies": {
     "needle": "^2.6.0"
   }
