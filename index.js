@@ -52,7 +52,7 @@ needle.post(
           }
         })
         break
-      case "mixed":
+      case "mix":
       default:
         console.log('> Detect "mixed" option or not detected')
         playerResponse.streamingData.formats.forEach((v) => {
