@@ -1,0 +1,17 @@
+{
+  "name": "youtube-otosuyatu",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owatu1234/youtube-otosuyatu.git"
+  },
+  "author": "owatu",
+  "license": "",
+  "dependencies": {
+    "needle": "^2.6.0"
+  }
+}
