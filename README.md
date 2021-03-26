@@ -5,8 +5,8 @@ Node.js v14.16.0 で動作確認
 ダウンロードするための URL を出力してくれます  
 めんど臭かったので引数が雑です  
 
-ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) です  
-あと https://tyrrrz.me/blog/reverse-engineering-youtube とかも
+ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) から学んだものです  
+あと https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
 
 https://www.youtube.com/watch?v={videoId}&pbj=1 の pbj=1 は自分で見つけました  
 YouTubeのウェブアプリはSPAなので、そのページのデータをやり取りするものだと考えられます  
