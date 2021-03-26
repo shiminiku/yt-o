@@ -2,12 +2,20 @@ const needle = require("needle")
 const fs = require("fs/promises")
 
 console.log(
-  `💩      💩  💩💩💩💩💩
+  `
+💩      💩  💩💩💩💩💩
   💩  💩        💩
     💩          💩
     💩          💩
-    💩          💩`
+    💩          💩
+  `
 )
+
+console.log(`!!!Options notify!!!`)
+console.log(
+  `videoId: ${process.argv[process.argv.length - 1].substring(0, 11)}`
+)
+console.log(`outOption: ${process.argv[process.argv.length - 1].substr(11)}\n`)
 
 needle.post(
   `https://www.youtube.com/watch?v=${process.argv[
@@ -20,13 +28,6 @@ needle.post(
       return
     }
 
-    if (process.argv[process.argv.length - 1] === "out") {
-      console.log('> Detect "out" option')
-      await fs.writeFile("./out.json", JSON.stringify(b, null, "  "))
-      console.log(`Saved response in ${__dirname}/out.json`)
-      return
-    }
-
     let playerResponse
     b.forEach((v) => {
       if (v.playerResponse) {
@@ -36,6 +37,11 @@ needle.post(
 
     let filteredStreamings = []
     switch (process.argv[process.argv.length - 1].substr(11)) {
+      case "out":
+        console.log('> Detect "out" option')
+        await fs.writeFile("./out.json", JSON.stringify(b, null, "  "))
+        console.log(`Saved response in ${__dirname}/out.json`)
+        return
       case "video":
         console.log('> Detect "video" option')
         playerResponse.streamingData.adaptiveFormats.forEach((v) => {
@@ -53,12 +59,14 @@ needle.post(
         })
         break
       case "mix":
-      default:
-        console.log('> Detect "mixed" option or not detected')
+        console.log('> Detect "mix" option')
         playerResponse.streamingData.formats.forEach((v) => {
           filteredStreamings.push(v)
         })
         break
+      default:
+        console.log("!Error! Invalid output option")
+        return
     }
 
     let highestBitrateStreaming = { bitrate: 0 }
@@ -83,36 +91,45 @@ needle.post(
       }
 
       needle.get(
-        "https://www.youtube.com/s/player/223a7479/player_ias.vflset/ja_JP/base.js",
+        `https://www.youtube.com/watch?v=${process.argv[
+          process.argv.length - 1
+        ].substring(0, 11)}`,
         (e, _, b) => {
-          if (e != null) {
-            console.error("!Error! needle.get")
-            return
-          }
+          needle.get(
+            `https://www.youtube.com${b.match(/script src="(.*?base.js)"/)[1]}`,
+            (e, _, b) => {
+              if (e != null) {
+                console.error("!Error! needle.get")
+                return
+              }
 
-          // start with "*.split("")"
-          // end with "*.join("")"
-          let decipherFuncBody = b.match(
-            /\w+=function\(.+\){(.+split\(""\);(.+?)\..+?.+?;return .+\.join\(""\))}/
-          )
+              // start with "*.split("")"
+              // end with "*.join("")"
+              let decipherFuncBody = b.match(
+                /\w+=function\(.+\){(.+split\(""\);(.+?)\..+?.+?;return .+\.join\(""\))}/
+              )
 
-          let operatorsCode = b.match(
-            new RegExp(`var ${decipherFuncBody[2]}={.+?};`, "s")
-          )[0]
+              let operatorsCode = b.match(
+                new RegExp(`var ${decipherFuncBody[2]}={.+?};`, "s")
+              )[0]
 
-          let getSignature = new Function(
-            "a",
-            operatorsCode + decipherFuncBody[1]
-          )
+              let getSignature = new Function(
+                "a",
+                operatorsCode + decipherFuncBody[1]
+              )
 
-          console.log(
-            `Result: ${signatureInfo.url}&sig=${getSignature(signatureInfo.s)}`
+              console.log(
+                `\nResult: ${signatureInfo.url}&sig=${getSignature(
+                  signatureInfo.s
+                )}`
+              )
+            }
           )
         }
       )
     } else {
       console.log("> not detected signature")
-      console.log(`Result: ${highestBitrateStreaming.url}`)
+      console.log(`\nResult: ${highestBitrateStreaming.url}`)
     }
   }
 )
