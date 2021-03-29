@@ -1,9 +1,15 @@
 # youtube-otosuyatu
 
+**更新:実行方法(引数)が変わっています**  
+また User-Agent により、360 度動画等に対応しているかを識別しているため、将来的に[index.js の 27 行目](https://github.com/owatu1234/youtube-otosuyatu/blob/main/index.js#L27)を変更しないと動かないかもしれません
+
 Node.js v14.16.0 で動作確認
 名前のまんま  
 ダウンロードするための URL を出力してくれます  
-めんど臭かったので引数が雑です
+**引数しっかりしました**  
+てか、しっかりしたほうが簡単
+やられた
+前のほうが面倒やん
 
 ## 長いなにか
 
@@ -18,40 +24,36 @@ YouTube のウェブアプリは SPA なので、そのページのデータを�
 
 ## 使い方
 
-### 1
-
-クローン
+### 1.クローン
 
 ```
 git clone https://github.com/owatu1234/youtube-otosuyatu.git
 ```
 
-### 2
-
-依存関係のインストール
+### 2.依存関係のインストール
 
 ```
 node install
 ```
 
-### 3
+### 3.実行
 
-実行  
-videoId のあとに空白はないのでご注意を
+よくありそうな感じ  
+対話モードのリストでは色付けをしています  
+(色付けの動作確認済は Ubuntu だけ、他でも動いたらぜひ報告お願いします)
 
-```
-npm run start <videoId><video|audio|mix|out>
-```
+```shell
+npm run start <videoId> <''|video|audio|mix|out>
 
-例
-
-```
-動画だけ
-npm run start dQw4w9WgXcQvideo
-音声だけ
-npm run start dQw4w9WgXcQaudio
-どっちも 画質は最高まで出ない(多分720p30fpsまで)
-npm run start dQw4w9WgXcQmix
+#対話モード(デフォルト)
+#リストが出力されるので、数字を入れて選択できます)
+npm run start dQw4w9WgXcQ
+#最もビットレートの高い動画 (動画、音声は別れている)
+npm run start dQw4w9WgXcQ video
+#最もビットレートの高い音声 (音声、動画は別れている)
+npm run start dQw4w9WgXcQ audio
+#どっちも 画質は最高まで出ない(多分720p30fpsまで)
+npm run start dQw4w9WgXcQ mix
 ```
 
 ### 4
@@ -64,6 +66,14 @@ npm run start dQw4w9WgXcQmix
 https://www.youtube.com/watch?v={videoId}&pbj=1 のレスポンスが保存できます  
 同じディレクトリに out.json が生成されます
 
+```shell
+npm run start dQw4w9WgXcQ out
 ```
-npm run start dQw4w9WgXcQout
-```
+
+## { "en": ": )", "ja": "(^\_^)" }
+
+ここまでよんでくれてありがとう!!  
+ひまじんだから、ようぼうをうけつけているよ!!  
+てきとうにいしゅーをなげると、てきとうにじっそうするかも!!  
+かいぜんてん、まってるよ!!  
+~~はぁ〜、IQ 下がった?~~
