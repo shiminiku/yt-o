@@ -1,9 +1,12 @@
 {
+  "private": true,
   "name": "youtube-otosuyatu",
-  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
+  },
+  "bin": {
+    "yt-otosuyatu": "bin/yt-otosuyatu.js"
   },
   "repository": {
     "type": "git",

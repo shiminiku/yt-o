@@ -1,15 +1,10 @@
 # youtube-otosuyatu
 
-**更新:実行方法(引数)が変わっています**  
 また User-Agent により、360 度動画等に対応しているかを識別しているため、将来的に[index.js の 27 行目](https://github.com/owatu1234/youtube-otosuyatu/blob/main/index.js#L27)を変更しないと動かないかもしれません
 
 Node.js v14.16.0 で動作確認
 名前のまんま  
-ダウンロードするための URL を出力してくれます  
-**引数しっかりしました**  
-てか、しっかりしたほうが簡単
-やられた
-前のほうが面倒やん
+ダウンロードするための URL を出力してくれます
 
 ## 長いなにか
 
@@ -38,22 +33,25 @@ node install
 
 ### 3.実行
 
-よくありそうな感じ  
-対話モードのリストでは色付けをしています  
-(色付けの動作確認済は Ubuntu だけ、他でも動いたらぜひ報告お願いします)
-
 ```shell
-npm run start <videoId> <''|video|audio|mix|out>
+npm run start <videoId> <''|video|audio|mix|out|mimetype>
 
 #対話モード(デフォルト)
 #リストが出力されるので、数字を入れて選択できます)
-npm run start dQw4w9WgXcQ
+#リストでは色付けをしています
+npm start dQw4w9WgXcQ
+
 #最もビットレートの高い動画 (動画、音声は別れている)
-npm run start dQw4w9WgXcQ video
+npm start dQw4w9WgXcQ video
+
 #最もビットレートの高い音声 (音声、動画は別れている)
-npm run start dQw4w9WgXcQ audio
+npm start dQw4w9WgXcQ audio
+
 #どっちも 画質は最高まで出ない(多分720p30fpsまで)
-npm run start dQw4w9WgXcQ mix
+npm start dQw4w9WgXcQ mix
+
+#mimeTypeを指定する 部分的な文字列で可能 検索方法は`includes`
+npm start dQw4w9WgXcQ mimetype <mimeType>
 ```
 
 ### 4
@@ -62,15 +60,24 @@ npm run start dQw4w9WgXcQ mix
 
 ## 他にも...
 
-レスポンスの保存 ~~Postman 使え~~  
+### レスポンスの保存 ~~Postman 使え~~
+
 https://www.youtube.com/watch?v={videoId}&pbj=1 のレスポンスが保存できます  
 同じディレクトリに out.json が生成されます
 
 ```shell
-npm run start dQw4w9WgXcQ out
+npm start dQw4w9WgXcQ out
 ```
 
-## { "en": ": )", "ja": "(^\_^)" }
+### グローバルにインストールした**様に**
+
+以下を実行すると`yt-otosuyatu`だけで実行できるようになります
+
+```shell
+npm link
+```
+
+## { "en": ":)", "ja": "(^\_^)" }
 
 ここまでよんでくれてありがとう!!  
 ひまじんだから、ようぼうをうけつけているよ!!  
