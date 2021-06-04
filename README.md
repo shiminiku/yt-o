@@ -34,7 +34,7 @@ node install
 ### 3.実行
 
 ```shell
-npm run start <videoId> <''|video|audio|mix|out|mimetype>
+npm start <videoId> <''|video|audio|mix|out|mimetype>
 
 #対話モード(デフォルト)
 #リストが出力されるので、数字を入れて選択できます)
@@ -51,7 +51,7 @@ npm start dQw4w9WgXcQ audio
 npm start dQw4w9WgXcQ mix
 
 #mimeTypeを指定する 部分的な文字列で可能 検索方法は`includes`
-npm start dQw4w9WgXcQ mimetype <mimeType>
+npm start dQw4w9WgXcQ mimetype audio/mp4
 ```
 
 ### 4
@@ -76,11 +76,3 @@ npm start dQw4w9WgXcQ out
 ```shell
 npm link
 ```
-
-## { "en": ":)", "ja": "(^\_^)" }
-
-ここまでよんでくれてありがとう!!  
-ひまじんだから、ようぼうをうけつけているよ!!  
-てきとうにいしゅーをなげると、てきとうにじっそうするかも!!  
-かいぜんてん、まってるよ!!  
-~~はぁ〜、IQ 下がった?~~

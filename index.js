@@ -18,13 +18,22 @@ console.log()
 
 if (!process.argv[2] || process.argv[2].search(/^[0-9a-zA-Z-_]{11}$/) === -1) {
   console.error("!Error! In parameter videoId")
+  console.log()
+  console.log("Usage")
+  console.log(`npm start <videoId> <''|video|audio|mix|out|mimetype>
+
+npm start dQw4w9WgXcQ
+npm start dQw4w9WgXcQ video
+npm start dQw4w9WgXcQ audio
+npm start dQw4w9WgXcQ mix
+npm start dQw4w9WgXcQ mimetype audio/mp4`)
   return
 }
 
 needle.post(
   `https://www.youtube.com/watch?v=${process.argv[2]}&pbj=1`,
   null,
-  { headers: { "User-Agent": "AppleWebKit/537.36 Chrome/89.0.4389.90" } }, // 360度動画等で動かないならここを変更! わからなければissueおｋ
+  { headers: { "User-Agent": "AppleWebKit/537.36 Chrome/89.0.4389.90" } }, // 360度動画等で動かないならここを変更
   async (err, _, body) => {
     if (err != null) {
       console.error("!Error! needle.post")
@@ -86,8 +95,6 @@ needle.post(
           console.log(`not found in mimeType="${process.argv[4]}"`)
           return
         }
-
-        console.log(filteredStreams)
         break
       default:
         console.log("> option not detected, enter interactive mode\n")
