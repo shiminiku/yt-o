@@ -2,6 +2,11 @@ const needle = require("needle")
 const fs = require("fs/promises")
 const readline = require("readline")
 
+function extractID(s) {
+  const match = s.match(/[0-9a-zA-Z-_]{11}/)
+  return match ? match[0] : null
+}
+
 console.log(
   `
 💩      💩  💩💩💩💩💩
@@ -12,11 +17,9 @@ console.log(
   `
 )
 
-console.log(`!!!parameter notify!!!`)
-console.log(`videoId: ${process.argv[2]}`)
-console.log()
+const videoId = process.argv[2] ? extractID(process.argv[2]) : null
 
-if (!process.argv[2] || process.argv[2].search(/^[0-9a-zA-Z-_]{11}$/) === -1) {
+if (!videoId) {
   console.error("!Error! In parameter videoId")
   console.log()
   console.log("Usage")
@@ -31,9 +34,9 @@ npm start dQw4w9WgXcQ mimetype audio/mp4`)
 }
 
 needle.post(
-  `https://www.youtube.com/watch?v=${process.argv[2]}&pbj=1`,
+  `https://www.youtube.com/watch?v=${videoId}&pbj=1`,
   null,
-  { headers: { "User-Agent": "AppleWebKit/537.36 Chrome/89.0.4389.90" } }, // 360度動画等で動かないならここを変更
+  { headers: { "User-Agent": "AppleWebKit Chrome" } }, // 360度動画等で動かないならここを変更
   async (err, _, body) => {
     if (err != null) {
       console.error("!Error! needle.post")
@@ -44,6 +47,12 @@ needle.post(
     body.forEach((v) => {
       if (v.playerResponse) {
         playerResponse = v.playerResponse
+
+        const videoDetails = v.playerResponse.videoDetails
+        console.log(`videoId: \x1b[1m${videoDetails.videoId}\x1b[m`)
+        console.log(`title: \x1b[1m${videoDetails.title}\x1b[1m`)
+        console.log(`author: \x1b[1m${videoDetails.author}\x1b[m`)
+        console.log()
       }
     })
 
@@ -81,7 +90,7 @@ needle.post(
       case "mimetype":
         console.log('> Detect "mimetype" option')
         if (!process.argv[4]) {
-          console.log("!Error! In parameter mimetype")
+          console.error("!Error! In parameter mimetype")
           return
         }
 
@@ -92,7 +101,7 @@ needle.post(
         })
 
         if (!filteredStreams.length) {
-          console.log(`not found in mimeType="${process.argv[4]}"`)
+          console.error(`not found in mimeType="${process.argv[4]}"`)
           return
         }
         break

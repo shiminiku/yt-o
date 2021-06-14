@@ -1,21 +1,8 @@
 # youtube-otosuyatu
 
-また User-Agent により、360 度動画等に対応しているかを識別しているため、将来的に[index.js の 27 行目](https://github.com/owatu1234/youtube-otosuyatu/blob/main/index.js#L27)を変更しないと動かないかもしれません
-
 Node.js v14.16.0 で動作確認
 名前のまんま  
 ダウンロードするための URL を出力してくれます
-
-## 長いなにか
-
-ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) から学んだものです  
-https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
-
-https://www.youtube.com/watch?v={videoId}&pbj=1 の pbj=1 は自分で見つけました  
-YouTube のウェブアプリは SPA なので、そのページのデータをやり取りするものだと考えられます
-
-例: https://www.youtube.com/watch?v=dQw4w9WgXcQ&pbj=1 に**POST**する(GET じゃだめよ)  
-そうするといい感じのデータがかえってきます(あとはご自分で...最悪ソースコード見てね)
 
 ## 使い方
 
@@ -57,6 +44,17 @@ npm start dQw4w9WgXcQ mimetype audio/mp4
 ### 4
 
 出力される URL を開く(ストリーミングっぽい感じ)
+
+## 参考と発見
+
+ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) から学んだものです  
+https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
+
+https://www.youtube.com/watch?v={videoId}&pbj=1 の pbj=1 は自分で見つけました  
+YouTube のウェブアプリは SPA なので、そのページのデータをやり取りするものだと考えられます
+
+例: https://www.youtube.com/watch?v=dQw4w9WgXcQ&pbj=1 に**POST**する(GET じゃだめよ)  
+そうするといい感じのデータがかえってきます(あとはご自分で...最悪ソースコード見てね)
 
 ## 他にも...
 
