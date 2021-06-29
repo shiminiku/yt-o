@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const needle = require("needle")
 const fs = require("fs/promises")
 const readline = require("readline")
@@ -23,12 +24,12 @@ if (!videoId) {
   console.error("!Error! In parameter videoId")
   console.log()
   console.log("Usage")
-  console.log(`npm start <videoId> <''|video|audio|mix|out|mimetype>
+  console.log(`npm start <videoId> <''|video|audio|both|out|mimetype>
 
 npm start dQw4w9WgXcQ
 npm start dQw4w9WgXcQ video
 npm start dQw4w9WgXcQ audio
-npm start dQw4w9WgXcQ mix
+npm start dQw4w9WgXcQ both
 npm start dQw4w9WgXcQ mimetype audio/mp4`)
   return
 }
@@ -50,7 +51,7 @@ needle.post(
 
         const videoDetails = v.playerResponse.videoDetails
         console.log(`videoId: \x1b[1m${videoDetails.videoId}\x1b[m`)
-        console.log(`title: \x1b[1m${videoDetails.title}\x1b[1m`)
+        console.log(`title: \x1b[1m${videoDetails.title}\x1b[m`)
         console.log(`author: \x1b[1m${videoDetails.author}\x1b[m`)
         console.log()
       }
@@ -61,11 +62,13 @@ needle.post(
     let stream = { bitrate: 0 }
     switch (process.argv[3]) {
       case "out":
+      case "o":
         console.log('> Detect "out" option')
         await fs.writeFile("./out.json", JSON.stringify(body, null, "  "))
         console.log(`Saved response in ${__dirname}/out.json`)
         return
       case "video":
+      case "v":
         console.log('> Detect "video" option')
         playerResponse.streamingData.adaptiveFormats.forEach((v) => {
           if (v.mimeType.startsWith("video/")) {
@@ -74,6 +77,7 @@ needle.post(
         })
         break
       case "audio":
+      case "a":
         console.log('> Detect "audio" option')
         playerResponse.streamingData.adaptiveFormats.forEach((v) => {
           if (v.mimeType.startsWith("audio/")) {
@@ -81,8 +85,9 @@ needle.post(
           }
         })
         break
-      case "mix":
-        console.log('> Detect "mix" option')
+      case "both":
+      case "b":
+        console.log('> Detect "both" option')
         playerResponse.streamingData.formats.forEach((v) => {
           filteredStreams.push(v)
         })

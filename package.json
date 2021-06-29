@@ -6,7 +6,7 @@
     "start": "node index.js"
   },
   "bin": {
-    "yt-otosuyatu": "bin/yt-otosuyatu.js"
+    "youtube-otosuyatu": "index.js"
   },
   "repository": {
     "type": "git",
