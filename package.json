@@ -1,12 +1,12 @@
 {
   "private": true,
   "name": "youtube-otosuyatu",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node ."
   },
   "bin": {
-    "youtube-otosuyatu": "index.js"
+    "youtube-otosuyatu": "src/main.js"
   },
   "repository": {
     "type": "git",
