@@ -61,7 +61,7 @@ switch (process.argv[3]) {
   case "o":
     console.log('> Detect "out" option')
     await writeFile("./out.json", JSON.stringify(body, null, "  "))
-    console.log(`Saved response in ${__dirname}/out.json`)
+    console.log(`Saved response in ./out.json`)
     process.exit()
   case "video":
   case "v":
@@ -162,11 +162,9 @@ if (stream.url) {
   console.log(`\nResult: ${stream.url}`)
 } else {
   console.log("> Detect signature")
-  const signatureInfo = {
-    s: decodeURIComponent(stream.signatureCipher.match(/s=([^&]*)/)[1]),
-    sp: decodeURIComponent(stream.signatureCipher.match(/sp=([^&]*)/)[1]),
-    url: decodeURIComponent(stream.signatureCipher.match(/url=([^&]*)/)[1]),
-  }
+  const sig = decodeURIComponent(stream.signatureCipher.match(/s=([^&]*)/)[1])
+  const sigParam = decodeURIComponent(stream.signatureCipher.match(/sp=([^&]*)/)[1])
+  const url = decodeURIComponent(stream.signatureCipher.match(/url=([^&]*)/)[1])
 
   body = (await got(`https://www.youtube.com/watch?v=${process.argv[2]}`)).body
   body = (await got(`https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`)).body
@@ -177,5 +175,5 @@ if (stream.url) {
   let operatorsCode = body.match(new RegExp(`var ${decipherFuncBody[2]}={.+?};`, "s"))[0]
   let getSignature = new Function("a", operatorsCode + decipherFuncBody[1])
 
-  console.log(`\nResult: ${signatureInfo.url}&sig=${getSignature(signatureInfo.s)}`)
+  console.log(`\nResult: ${url}&${sigParam}=${getSignature(sig)}`)
 }
