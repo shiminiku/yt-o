@@ -61,7 +61,7 @@ switch (process.argv[3]) {
   case "o":
     console.log('> Detect "out" option')
     await writeFile("./out.json", JSON.stringify(body, null, "  "))
-    console.log(`Saved response in ${__dirname}/out.json`)
+    console.log(`Saved response in ./out.json`)
     process.exit()
   case "video":
   case "v":
