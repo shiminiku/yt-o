@@ -34,24 +34,11 @@ npm start dQw4w9WgXcQ mimetype audio/mp4`)
   process.exit()
 }
 
-let res = await got(`https://www.youtube.com/watch?v=${videoId}&pbj=1`, {
-  method: "POST",
+let res = await got(`https://www.youtube.com/watch?v=${videoId}`, {
   headers: { "User-Agent": "AppleWebKit Chrome" },
 })
-let body = JSON.parse(res.body)
-
-let playerResponse
-body.forEach((v) => {
-  if (v.playerResponse) {
-    playerResponse = v.playerResponse
-
-    const videoDetails = v.playerResponse.videoDetails
-    console.log(`videoId: \x1b[1m${videoDetails.videoId}\x1b[m`)
-    console.log(`title: \x1b[1m${videoDetails.title}\x1b[m`)
-    console.log(`author: \x1b[1m${videoDetails.author}\x1b[m`)
-    console.log()
-  }
-})
+let body = res.body
+let playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)[1])()
 
 let filteredStreams = []
 let interactiveMode = false
@@ -183,7 +170,6 @@ if (stream.url) {
   }
   sigCipher[tempKey] = decodeURIComponent(tempStr)
 
-  body = (await got(`https://www.youtube.com/watch?v=${videoId}`)).body
   body = (await got(`https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`)).body
 
   // start with "*.split("")"
