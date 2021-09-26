@@ -4,6 +4,9 @@ Node.js v14.16.0 で動作確認
 名前のまんま  
 ダウンロードするための URL を出力してくれます
 
+`https://www.youtube.com/watch?v=${videoId}&pbj=1`は使えなくなったので、`https://www.youtube.com/watch?v=${videoId}`を main に持ってきました  
+pull して main をして更新してね
+
 ## 使い方
 
 ### 1.クローン
