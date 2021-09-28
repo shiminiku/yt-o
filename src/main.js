@@ -35,7 +35,7 @@ npm start dQw4w9WgXcQ mimetype audio/mp4`)
 }
 
 let res = await got(`https://www.youtube.com/watch?v=${videoId}`, {
-  headers: { "User-Agent": "AppleWebKit Chrome" },
+  headers: { "User-Agent": "AppleWebKit Chrome" }
 })
 let body = res.body
 let playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)[1])()
@@ -122,7 +122,7 @@ switch (process.argv[3]) {
     while (!answered) {
       const readlineInterface = createInterface({
         input: process.stdin,
-        output: process.stdout,
+        output: process.stdout
       })
       answer = await new Promise((resolve) => {
         readlineInterface.question("enter number > ", (answer) => {
