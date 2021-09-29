@@ -4,7 +4,7 @@ Node.js v14.16.0 で動作確認
 名前のまんま  
 ダウンロードするための URL を出力してくれます
 
-`https://www.youtube.com/watch?v=${videoId}&pbj=1`は使えなくなったので、`https://www.youtube.com/watch?v=${videoId}`を main に持ってきました  
+`https://www.youtube.com/watch?v=${videoId}&pbj=1`は使えなくなりました  
 main で pull して、更新してね
 
 ## 使い方
@@ -58,12 +58,6 @@ npm start dQw4w9WgXcQ mimetype audio/mp4
 
 ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) から学んだものです  
 https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
-
-https://www.youtube.com/watch?v={videoId}&pbj=1 の pbj=1 は自分で見つけました  
-YouTube のウェブアプリは SPA なので、そのページのデータをやり取りするものだと考えられます
-
-例: https://www.youtube.com/watch?v=dQw4w9WgXcQ&pbj=1 に**POST**する(GET じゃだめよ)  
-そうするといい感じのデータがかえってきます(あとはご自分で...最悪ソースコード見てね)
 
 ## 他にも...
 
