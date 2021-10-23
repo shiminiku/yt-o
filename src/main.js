@@ -150,27 +150,9 @@ if (stream.url) {
 } else {
   console.log("> Detect signature")
 
-  let tempKey = ""
-  let tempStr = ""
-  const sigCipher = {}
-  for (let char of stream.signatureCipher) {
-    switch (char) {
-      case "=":
-        tempKey = tempStr
-        tempStr = ""
-        break
-      case "&":
-        sigCipher[tempKey] = decodeURIComponent(tempStr)
-        tempStr = ""
-        break
-      default:
-        tempStr += char
-        break
-    }
-  }
-  sigCipher[tempKey] = decodeURIComponent(tempStr)
+  const sigCipher = new URLSearchParams(stream.signatureCipher)
 
-  body = (await got(`https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`)).body
+  body = await got(`https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`).text()
 
   // start with "*.split("")"
   // end with "*.join("")"
@@ -178,5 +160,7 @@ if (stream.url) {
   let operatorsCode = body.match(new RegExp(`var ${decipherFuncBody[2]}={.+?};`, "s"))[0]
   let getSignature = new Function("a", operatorsCode + decipherFuncBody[1])
 
-  console.log(`\nResult: ${sigCipher.url}&${sigCipher.sp}=${encodeURIComponent(getSignature(sigCipher.s))}`)
+  console.log(
+    `\nResult: ${sigCipher.get("url")}&${sigCipher.get("sp")}=${encodeURIComponent(getSignature(sigCipher.get("s")))}`
+  )
 }
