@@ -14,7 +14,7 @@
     "url": "git+https://github.com/owatu1234/youtube-otosuyatu.git"
   },
   "author": "owatu",
-  "license": "cc0-1.0",
+  "license": "MIT",
   "dependencies": {
     "got": "^11.8.2"
   }
