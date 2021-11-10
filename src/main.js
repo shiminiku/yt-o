@@ -21,16 +21,11 @@ console.log(
 const videoId = process.argv[2] ? extractId(process.argv[2]) : null
 
 if (!videoId) {
-  console.error("!Error! In parameter videoId")
+  console.error("!Error! videoId == null")
   console.log()
   console.log("Usage")
-  console.log(`npm start <videoId> <''|video|audio|both|out|mimetype>
-
-npm start dQw4w9WgXcQ
-npm start dQw4w9WgXcQ video
-npm start dQw4w9WgXcQ audio
-npm start dQw4w9WgXcQ both
-npm start dQw4w9WgXcQ mimetype audio/mp4`)
+  console.log("npm start <videoId> [video,audio,both,out,mimetype]")
+  console.log("more details, read README.md")
   process.exit()
 }
 
