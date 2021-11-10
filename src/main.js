@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import got from "got"
 import { writeFile } from "fs/promises"
 import { createInterface } from "readline"
+import { getPlayerResponse, getURL } from "./index.js"
 
 function extractId(s) {
   const match = s.match(/[0-9a-zA-Z-_]{11}/)
@@ -34,11 +34,7 @@ npm start dQw4w9WgXcQ mimetype audio/mp4`)
   process.exit()
 }
 
-let res = await got(`https://www.youtube.com/watch?v=${videoId}`, {
-  headers: { "User-Agent": "AppleWebKit Chrome" }
-})
-let body = res.body
-let playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)[1])()
+const { body, playerResponse } = await getPlayerResponse(videoId)
 
 let filteredStreams = []
 let interactiveMode = false
@@ -47,7 +43,7 @@ switch (process.argv[3]) {
   case "out":
   case "o":
     console.log('> Detect "out" option')
-    await writeFile("./out.json", JSON.stringify(body, null, "  "))
+    await writeFile("./out.json", JSON.stringify(playerResponse, null, "  "))
     console.log(`Saved response in ./out.json`)
     process.exit()
   case "video":
@@ -149,18 +145,9 @@ if (stream.url) {
   console.log(`\nResult: ${stream.url}`)
 } else {
   console.log("> Detect signature")
-
-  const sigCipher = new URLSearchParams(stream.signatureCipher)
-
-  body = await got(`https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`).text()
-
-  // start with "*.split("")"
-  // end with "*.join("")"
-  let decipherFuncBody = body.match(/\w+=function\(.+\){(.+split\(""\);(.+?)\..+?.+?;return .+\.join\(""\))}/)
-  let operatorsCode = body.match(new RegExp(`var ${decipherFuncBody[2]}={.+?};`, "s"))[0]
-  let getSignature = new Function("a", operatorsCode + decipherFuncBody[1])
-
-  console.log(
-    `\nResult: ${sigCipher.get("url")}&${sigCipher.get("sp")}=${encodeURIComponent(getSignature(sigCipher.get("s")))}`
+  const url = await getURL(
+    stream.signatureCipher,
+    `https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`
   )
+  console.log(`\nResult: ${url}`)
 }
