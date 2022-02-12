@@ -2,7 +2,7 @@ import got from "got"
 
 export async function getPlayerResponse(videoId) {
   const response = await got(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: { "User-Agent": "AppleWebKit Chrome" }
+    headers: { "User-Agent": "Mozilla/5.0 AppleWebKit Chrome/999 Safari" }
   })
   const body = response.body
   const playerResponse = new Function("return " + response.body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)[1])()
