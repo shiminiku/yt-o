@@ -31,7 +31,7 @@ if (!videoId) {
 
 const { body, playerResponse } = await getPlayerResponse(videoId)
 
-let filteredStreams = []
+let suggestStreams = []
 let interactiveMode = false
 let stream = { bitrate: 0 }
 switch (process.argv[3]) {
@@ -46,7 +46,7 @@ switch (process.argv[3]) {
     console.log('> Detect "video" option')
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
       if (v.mimeType.startsWith("video/")) {
-        filteredStreams.push(v)
+        suggestStreams.push(v)
       }
     })
     break
@@ -55,7 +55,7 @@ switch (process.argv[3]) {
     console.log('> Detect "audio" option')
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
       if (v.mimeType.startsWith("audio/")) {
-        filteredStreams.push(v)
+        suggestStreams.push(v)
       }
     })
     break
@@ -63,7 +63,7 @@ switch (process.argv[3]) {
   case "b":
     console.log('> Detect "both" option')
     playerResponse.streamingData.formats.forEach((v) => {
-      filteredStreams.push(v)
+      suggestStreams.push(v)
     })
     break
   case "mimetype":
@@ -75,11 +75,11 @@ switch (process.argv[3]) {
 
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
       if (v.mimeType.includes(process.argv[4])) {
-        filteredStreams.push(v)
+        suggestStreams.push(v)
       }
     })
 
-    if (!filteredStreams.length) {
+    if (!suggestStreams.length) {
       console.error(`not found in mimeType="${process.argv[4]}"`)
       process.exit()
     }
@@ -111,10 +111,7 @@ switch (process.argv[3]) {
     let answer
     let answered = false
     while (!answered) {
-      const readlineInterface = createInterface({
-        input: process.stdin,
-        output: process.stdout
-      })
+      const readlineInterface = createInterface({ input: process.stdin })
       answer = await new Promise((resolve) => {
         readlineInterface.question("enter number > ", (answer) => {
           resolve(answer)
@@ -128,7 +125,7 @@ switch (process.argv[3]) {
 }
 
 if (!interactiveMode) {
-  filteredStreams.forEach((v) => {
+  suggestStreams.forEach((v) => {
     if (v.bitrate > stream.bitrate) {
       stream = v
     }
