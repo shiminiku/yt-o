@@ -140,9 +140,6 @@ if (stream.url) {
   console.log(`\nResult: ${stream.url}`)
 } else {
   console.log("> Detect signature")
-  const url = await getURL(
-    stream.signatureCipher,
-    `https://www.youtube.com${body.match(/script src="(.*?base.js)"/)[1]}`
-  )
+  const url = await getURL(stream.signatureCipher, `https://www.youtube.com${body.match(/[\w./]*?base\.js/)[0]}`)
   console.log(`\nResult: ${url}`)
 }
