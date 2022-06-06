@@ -22,18 +22,18 @@ $ npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
 `npm start dQw4w9WgXcQ`
 
 **Highest bitrate "video" only**  
-`npm start dQw4w9WgXcQ video`
+`npm start dQw4w9WgXcQ video`  
 `npm start dQw4w9WgXcQ v`
 
 **Highest bitrate "audio" only**  
-`npm start dQw4w9WgXcQ audio`
+`npm start dQw4w9WgXcQ audio`  
 `npm start dQw4w9WgXcQ a`
 
 **Video and audio in one**  
-`npm start dQw4w9WgXcQ both`
+`npm start dQw4w9WgXcQ both`  
 `npm start dQw4w9WgXcQ b`
 
-**Specify mimeype (partial match) using `mimeType.includes()`**  
+**Specify mimeype (partial match, using `mimeType.includes()`)**  
 `npm start dQw4w9WgXcQ mimetype audio/mp4`
 
 open output URL and more overload... (download speed may be low, because streaming)
