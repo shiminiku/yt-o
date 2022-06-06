@@ -1,6 +1,6 @@
 # youtube-otosuyatu
 
-**Print download URL**  
+**Print the download URL**  
 Tested on Node.js v18.3.0 (but I think can run on other versions)
 
 If doesn't work, run `git pull`.  
