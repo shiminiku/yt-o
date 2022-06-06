@@ -1,79 +1,61 @@
 # youtube-otosuyatu
 
-Node.js v14.16.0 で動作確認  
-名前のまんま  
-ダウンロードするための URL を出力してくれます
+**Print the download URL**  
+Tested on Node.js v18.3.0 (but I think can run on other versions)
 
-`https://www.youtube.com/watch?v=${videoId}&pbj=1`は使えなくなりました  
-main で pull して、更新してね
+If doesn't work, run `git pull`.  
+Still doesn't work, report it (idk to fix it)
 
-## 使い方
+## Installation
 
-### 1.クローン
+1. `git clone https://github.com/owatu/youtube-otosuyatu`
+1. `cd youtube-otosuyatu`
+1. `npm install`
 
-```
-git clone https://github.com/owatu1234/youtube-otosuyatu.git
-```
-
-### 2.依存関係のインストール
+### Run
 
 ```
-npm install
+$ npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
 ```
 
-### 3.実行
+**Interactive mode (default)**  
+`npm start dQw4w9WgXcQ`
 
-```shell
-npm start <videoId> <''|video|audio|both|out|mimetype>
+**Highest bitrate "video" only**  
+`npm start dQw4w9WgXcQ video`  
+`npm start dQw4w9WgXcQ v`
 
-#対話モード(デフォルト)
-#リストが出力されるので、数字を入れて選択できます)
-#リストでは色付けをしています
-npm start dQw4w9WgXcQ
+**Highest bitrate "audio" only**  
+`npm start dQw4w9WgXcQ audio`  
+`npm start dQw4w9WgXcQ a`
 
-#最もビットレートの高い動画 (動画、音声は別れている)
-#`v`で短縮できます
-npm start dQw4w9WgXcQ video
-npm start dQw4w9WgXcQ v
+**Video and audio in one**  
+`npm start dQw4w9WgXcQ both`  
+`npm start dQw4w9WgXcQ b`
 
-#最もビットレートの高い音声 (音声、動画は別れている)
-#`a`で短縮できます
-npm start dQw4w9WgXcQ audio
-npm start dQw4w9WgXcQ a
+**Specify mimeype (partial match, using `mimeType.includes()`)**  
+`npm start dQw4w9WgXcQ mimetype audio/mp4`
 
-#どっちも 画質は最高まで出ない(多分720p30fpsまで)
-#`b`で短縮できます
-npm start dQw4w9WgXcQ both
-npm start dQw4w9WgXcQ b
+open output URL and more overload... (download speed may be low, because streaming)
 
-#mimeTypeを指定する 部分的な文字列で可能 検索方法は`includes`
-npm start dQw4w9WgXcQ mimetype audio/mp4
-```
+## special thanksssss
 
-### 4
+- [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode)
+- https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
 
-出力される URL を開く(ストリーミングっぽい感じ)
+## other features
 
-## 参考と発見
-
-ほとんど [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) から学んだものです  
-https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
-
-## 他にも...
-
-### レスポンスの保存 ~~Postman 使え~~
-
-https://www.youtube.com/watch?v={videoId}&pbj=1 のレスポンスが保存できます  
-同じディレクトリに out.json が生成されます
+### save `playerResponse` to "./out.json"
 
 ```shell
 npm start dQw4w9WgXcQ out
 ```
 
-### グローバルにインストールした**様に**
+### `$ youtube-otosuyatu ...`
 
-以下を実行すると`youtube-otosuyatu`だけで実行できるようになります
+you can run this anywhere with `youtube-otosuyatu`
 
-```shell
-npm link
+```
+$ npm link
+$ youtube-otosuyatu dQw4w9WgXcQ both
 ```
