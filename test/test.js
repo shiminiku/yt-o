@@ -16,6 +16,6 @@ test("getURL", async () => {
   const url = await getURL(signatureCipher, `https://www.youtube.com${body.match(/[\w./]*?base\.js/)[0]}`)
   expect(url?.search(/^https:\/\/[^.]*\.googlevideo\.com/) > -1).toBe(true)
 
-  const response = await got(url, { method: "HEAD" })
+  const response = await got(url, { method: "HEAD", retry: 0 })
   expect(response.statusCode).toBe(200)
 })
