@@ -8,25 +8,22 @@ function extractId(s) {
   return match ? match[0] : null
 }
 
-console.log(
-  `
+console.log(`\
 💩      💩  💩💩💩💩💩
   💩  💩        💩
     💩          💩
     💩          💩
-    💩          💩
-  `
-)
+    💩          💩`)
 
 const videoId = process.argv[2] ? extractId(process.argv[2]) : null
 
 if (!videoId) {
-  console.error("!Error! videoId == null")
+  console.error("[Error] 404 Not Found <videoId>")
   console.log()
   console.log("Usage")
-  console.log("npm start <videoId> [video,audio,both,out,mimetype]")
+  console.log("npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]")
   console.log("more details, read README.md")
-  process.exit()
+  process.exit(1)
 }
 
 const { body, playerResponse } = await getPlayerResponse(videoId)
