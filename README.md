@@ -41,7 +41,7 @@ open output URL and more overload... (download speed may be low, because streami
 ## special thanksssss
 
 - [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode)
-- https://tyrrrz.me/blog/reverse-engineering-youtube も参考にしてます
+- https://tyrrrz.me/blog/reverse-engineering-youtube
 
 ## other features
 
