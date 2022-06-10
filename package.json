@@ -3,9 +3,9 @@
   "name": "youtube-otosuyatu",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/main.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node .",
+    "start": "node src/main.js",
     "test": "node --experimental-vm-modules $(yarn bin jest)"
   },
   "bin": {
