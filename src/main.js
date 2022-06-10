@@ -18,7 +18,7 @@ console.log(`\
 const videoId = process.argv[2] ? extractId(process.argv[2]) : null
 
 if (!videoId) {
-  console.error("[Error] 404 Not Found <videoId>")
+  console.error("[Error] Not found <videoId>")
   console.log()
   console.log("Usage")
   console.log("npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]")
