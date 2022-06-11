@@ -3,9 +3,9 @@
     "outDir": "dist",
 
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ESNext",
 
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "esModuleInterop": true,
 
     "strict": true

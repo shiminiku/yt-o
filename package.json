@@ -3,13 +3,14 @@
   "name": "youtube-otosuyatu",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "node src/main.js",
+    "start": "node ./dist/main.js",
+    "build": "tsc",
     "test": "node --experimental-vm-modules $(yarn bin jest)"
   },
   "bin": {
-    "youtube-otosuyatu": "src/main.js"
+    "youtube-otosuyatu": "./dist/main.js"
   },
   "repository": {
     "type": "git",

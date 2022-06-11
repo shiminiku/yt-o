@@ -22,7 +22,7 @@ if (videoId == null) {
   process.exit(1)
 }
 
-const { body, playerResponse } = await getPlayerResponse(videoId)
+const { playerResponse, basejsURL } = await getPlayerResponse(videoId)
 if (playerResponse == null) {
   console.error("[Error] could not get playerResponse")
   process.exit(1)
@@ -115,18 +115,18 @@ switch (process.argv[3]) {
       }
     })
 
-    let answer: string
+    let answer = -1
     let answered = false
     while (!answered) {
       const readlineInterface = createInterface({ input: process.stdin })
       answer = await new Promise((resolve) => {
         readlineInterface.question("enter number > ", (answer) => {
-          resolve(answer)
+          resolve(parseInt(answer))
           readlineInterface.close()
         })
       })
 
-      answered = indexes.includes(parseInt(answer))
+      answered = indexes.includes(answer)
     }
     stream = playerResponse.streamingData.adaptiveFormats[answer]
 }
@@ -141,8 +141,7 @@ if (!interactiveMode) {
 
 console.log()
 if (stream.url) {
-  console.log(`${stream.url}`)
+  console.log(stream.url)
 } else {
-  const url = await getVideoURL(stream.signatureCipher, body)
-  console.log(`${url}`)
+  console.log(await getVideoURL(stream.signatureCipher, basejsURL))
 }
