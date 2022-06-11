@@ -19,7 +19,7 @@
   "author": "owatu",
   "license": "MIT",
   "dependencies": {
-    "got": "^11.8.2"
+    "got": "^12.1.0"
   },
   "devDependencies": {
     "@types/jest": "^28.1.1",
