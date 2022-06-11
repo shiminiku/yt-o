@@ -1,23 +1,19 @@
 #!/usr/bin/env node
 import { writeFile } from "fs/promises"
 import { createInterface } from "readline"
-import { getPlayerResponse, getURL } from "./index.js"
-
-function extractId(s) {
-  const match = s.match(/[0-9a-zA-Z-_]{11}/)
-  return match ? match[0] : null
-}
+import { extractVideoId, getPlayerResponse, getVideoURL, Stream } from "./index.js"
 
 console.log(`\
 💩      💩  💩💩💩💩💩
   💩  💩        💩
     💩          💩
     💩          💩
-    💩          💩`)
+    💩          💩
+`)
 
-const videoId = process.argv[2] ? extractId(process.argv[2]) : null
+const videoId = extractVideoId(process.argv[2])
 
-if (!videoId) {
+if (videoId == null) {
   console.error("[Error] Not found <videoId>")
   console.log()
   console.log("Usage")
@@ -27,20 +23,33 @@ if (!videoId) {
 }
 
 const { body, playerResponse } = await getPlayerResponse(videoId)
+if (playerResponse == null) {
+  console.error("[Error] could not get playerResponse")
+  process.exit(1)
+}
 
-let suggestStreams = []
+let suggestStreams: Stream[] = []
 let interactiveMode = false
-let stream = { bitrate: 0 }
+let stream: Stream = {
+  bitrate: 0,
+
+  mimeType: "",
+  qualityLabel: "",
+  projectionType: "",
+  averageBitrate: 0,
+  url: "",
+  signatureCipher: "",
+}
 switch (process.argv[3]) {
   case "out":
   case "o":
-    console.log('> Detect "out" option')
+    console.log('> Detected "out" option')
     await writeFile("./out.json", JSON.stringify(playerResponse, null, "  "))
     console.log(`Saved response in ./out.json`)
     process.exit()
   case "video":
   case "v":
-    console.log('> Detect "video" option')
+    console.log('> Detected "video" option')
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
       if (v.mimeType.startsWith("video/")) {
         suggestStreams.push(v)
@@ -49,7 +58,7 @@ switch (process.argv[3]) {
     break
   case "audio":
   case "a":
-    console.log('> Detect "audio" option')
+    console.log('> Detected "audio" option')
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
       if (v.mimeType.startsWith("audio/")) {
         suggestStreams.push(v)
@@ -58,33 +67,34 @@ switch (process.argv[3]) {
     break
   case "both":
   case "b":
-    console.log('> Detect "both" option')
+    console.log('> Detected "both" option')
     playerResponse.streamingData.formats.forEach((v) => {
       suggestStreams.push(v)
     })
     break
   case "mimetype":
-    console.log('> Detect "mimetype" option')
-    if (!process.argv[4]) {
-      console.error("!Error! In parameter mimetype")
-      process.exit()
+    console.log('> Detected "mimetype" option')
+    const mimetype = process.argv[4]
+    if (!mimetype) {
+      console.error("[Error] Not found mimetype argument")
+      process.exit(1)
     }
 
     playerResponse.streamingData.adaptiveFormats.forEach((v) => {
-      if (v.mimeType.includes(process.argv[4])) {
+      if (v.mimeType.includes(mimetype)) {
         suggestStreams.push(v)
       }
     })
 
     if (!suggestStreams.length) {
-      console.error(`not found in mimeType="${process.argv[4]}"`)
-      process.exit()
+      console.error(`[Error] Not found stream for specified mimetype(${mimetype})`)
+      process.exit(1)
     }
     break
   default:
-    console.log("> option not detected, enter interactive mode\n")
+    console.log()
     interactiveMode = true
-    let indexes = []
+    let indexes: number[] = []
     playerResponse.streamingData.adaptiveFormats.forEach((v, i) => {
       indexes.push(i)
       let len = `[${i}] `.length
@@ -105,7 +115,7 @@ switch (process.argv[3]) {
       }
     })
 
-    let answer
+    let answer: string
     let answered = false
     while (!answered) {
       const readlineInterface = createInterface({ input: process.stdin })
@@ -129,11 +139,10 @@ if (!interactiveMode) {
   })
 }
 
+console.log()
 if (stream.url) {
-  console.log("> not detected signature")
-  console.log(`\nResult: ${stream.url}`)
+  console.log(`${stream.url}`)
 } else {
-  console.log("> Detect signature")
-  const url = await getURL(stream.signatureCipher, `https://www.youtube.com${body.match(/[\w./]*?base\.js/)[0]}`)
-  console.log(`\nResult: ${url}`)
+  const url = await getVideoURL(stream.signatureCipher, body)
+  console.log(`${url}`)
 }
