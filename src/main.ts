@@ -28,13 +28,6 @@ if (playerResponse == null) {
   process.exit(1)
 }
 
-console.log("#Title:")
-console.log(playerResponse.videoDetails.title)
-console.log("#Author:")
-console.log(playerResponse.videoDetails.author)
-console.log("#Description:")
-console.log(playerResponse.videoDetails.shortDescription.substring(0, 100))
-
 let suggestStreams: Stream[] = []
 let interactiveMode = false
 let stream: Stream = {
