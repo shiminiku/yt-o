@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "./dist/",
 
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
 
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-
-    "strict": true
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]
 }
