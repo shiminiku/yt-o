@@ -119,9 +119,9 @@ switch (process.argv[3]) {
         let answer = -1;
         let answered = false;
         while (!answered) {
-            const readlineInterface = createInterface({ input: process.stdin });
+            const readlineInterface = createInterface({ input: process.stdin, output: process.stdout });
             answer = await new Promise((resolve) => {
-                readlineInterface.question("enter number > ", (answer) => {
+                readlineInterface.question("Enter number > ", (answer) => {
                     resolve(parseInt(answer));
                     readlineInterface.close();
                 });
