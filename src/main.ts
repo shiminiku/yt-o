@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 import { writeFile } from "fs/promises"
+import { createWriteStream } from "fs"
 import { createInterface } from "readline"
-import { extractVideoId, getPlayerResponse, getVideoURL, Stream } from "./index.js"
+import { extractVideoId, getPlayerResponse, getVideoURL, Stream, USER_AGENT } from "./index.js"
+import got from "got"
+
+function printUsage() {
+  console.log()
+  console.log("Usage")
+  console.log("npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]")
+  console.log("more details, read README.md")
+}
 
 console.log(`\
 💩      💩  💩💩💩💩💩
@@ -11,16 +20,22 @@ console.log(`\
     💩          💩
 `)
 
+if (process.argv[2] == undefined) {
+  console.error("[Error] Not found <videoId>")
+  printUsage()
+  process.exit(1)
+}
+
 const videoId = extractVideoId(process.argv[2])
 
 if (videoId == null) {
   console.error("[Error] Not found <videoId>")
-  console.log()
-  console.log("Usage")
-  console.log("npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]")
-  console.log("more details, read README.md")
+  printUsage()
   process.exit(1)
 }
+
+let download = false
+download = process.argv.includes("--download")
 
 const { playerResponse, basejsURL } = await getPlayerResponse(videoId)
 if (playerResponse == null) {
@@ -140,8 +155,67 @@ if (!interactiveMode) {
 }
 
 console.log()
-if (stream.url) {
-  console.log(stream.url)
+
+const url = stream.url || (await getVideoURL(stream.signatureCipher, basejsURL))
+if (url == null) {
+  console.error("[Error] Could not get URL")
+  printUsage()
+  process.exit(1)
+}
+
+if (download) {
+  const dlStart = Date.now()
+
+  console.log(`Getting head...`)
+  const head = await got(url, { method: "HEAD", headers: { "User-Agent": USER_AGENT } })
+  const len = parseInt(head.headers["content-length"] ?? "-1")
+  console.log(`...done`)
+
+  const fname = `./out_${Date.now()}.bin`
+  const f = createWriteStream(`./out_${Date.now()}.bin`)
+  console.log(`Save to ${fname}`)
+
+  let gotUntil = 0
+  while (gotUntil < len) {
+    const startByte = gotUntil
+    const endByte = Math.min(gotUntil + 2_000_000 - 1, len - 1)
+
+    console.log(`REQ ${startByte.toLocaleString()} - ${endByte.toLocaleString()} / ${len.toLocaleString()} ...`)
+    const tstart = Date.now()
+    const res = await got(url + `&range=${startByte}-${endByte}`, {
+      method: "POST",
+      headers: { /* Range: `bytes=${startByte}-${endByte}`, */ "User-Agent": USER_AGENT },
+      body: "x\u0000",
+    })
+    const tend = Date.now()
+
+    const gotLen = parseInt(res.headers["content-length"] ?? "0")
+    gotUntil += gotLen
+    const speed = Math.round((gotLen / (tend - tstart)) * 1000)
+    console.log(
+      "...GOT",
+      gotLen.toLocaleString(),
+      "bytes",
+      "in",
+      (tend - tstart).toLocaleString(),
+      "ms",
+      `(${speed.toLocaleString()} bytes/s)`
+    )
+
+    f.write(res.rawBody)
+
+    const delay = Math.floor(Math.random() * 300 + 100)
+    console.log("delay:", delay.toLocaleString(), "ms")
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), delay))
+
+    console.log("|")
+  }
+  console.log("|")
+  f.end()
+
+  const dlEnd = Date.now()
+
+  console.log(`Done in ${(dlEnd - dlStart).toLocaleString()} ms! ${fname}`)
 } else {
-  console.log(await getVideoURL(stream.signatureCipher, basejsURL))
+  console.log(url)
 }

@@ -1,11 +1,12 @@
 import got from "got";
+export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/116 Safari/537.36";
 export function extractVideoId(str) {
     const match = str.match(/[0-9a-zA-Z-_]{11}/);
     return match ? match[0] : null;
 }
 export async function getPlayerResponse(videoId) {
     const response = await got(`https://www.youtube.com/watch?v=${videoId}`, {
-        headers: { "User-Agent": "Mozilla/5.0 AppleWebKit Chrome/999 Safari" },
+        headers: { "User-Agent": USER_AGENT },
     });
     const body = response.body;
     const playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1])();
@@ -34,10 +35,19 @@ export async function getVideoURL(signatureCipher, basejsURL) {
         const sig = getSignature(s);
         if (sig == null)
             throw new Error("could not get signature");
-        return `${sc.get("url")}&${sc.get("sp")}=${encodeURIComponent(sig)}`;
+        const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s);
+        if (NTokenFn == null)
+            throw new Error("could not find n token function");
+        const getNToken = new Function("a", NTokenFn[1]);
+        const url = new URL(sc.get("url") ?? "");
+        const origNToken = url.searchParams.get("n");
+        const NToken = getNToken(origNToken);
+        url.searchParams.set("n", NToken);
+        return `${url.toString()}&${sc.get("sp")}=${encodeURIComponent(sig)}`;
     }
     catch (e) {
         console.error(e);
         return null;
     }
 }
+//# sourceMappingURL=index.js.map
