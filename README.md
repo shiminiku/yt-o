@@ -10,31 +10,31 @@ Still doesn't work, report it (idk to fix it)
 
 1. `git clone https://github.com/owatu/youtube-otosuyatu`
 1. `cd youtube-otosuyatu`
-1. `yarn`
+1. `pnpm install`
 
 ### Run
 
 ```
-$ yarn start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
+$ pnpm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
 ```
 
 **Interactive mode (default)**  
-`yarn start dQw4w9WgXcQ`
+`pnpm start dQw4w9WgXcQ`
 
 **Highest bitrate "video" only**  
-`yarn start dQw4w9WgXcQ video`  
-`yarn start dQw4w9WgXcQ v`
+`pnpm start dQw4w9WgXcQ video`  
+`pnpm start dQw4w9WgXcQ v`
 
 **Highest bitrate "audio" only**  
-`yarn start dQw4w9WgXcQ audio`  
-`yarn start dQw4w9WgXcQ a`
+`pnpm start dQw4w9WgXcQ audio`  
+`pnpm start dQw4w9WgXcQ a`
 
 **Video and audio in one**  
-`yarn start dQw4w9WgXcQ both`  
-`yarn start dQw4w9WgXcQ b`
+`pnpm start dQw4w9WgXcQ both`  
+`pnpm start dQw4w9WgXcQ b`
 
 **Specify mimeype (partial match, using `mimeType.includes()`)**  
-`yarn start dQw4w9WgXcQ mimetype audio/mp4`
+`pnpm start dQw4w9WgXcQ mimetype audio/mp4`
 
 open output URL and more overload... (download speed may be low, because streaming)
 
@@ -48,7 +48,7 @@ open output URL and more overload... (download speed may be low, because streami
 ### save `playerResponse` to "./out.json"
 
 ```shell
-yarn start dQw4w9WgXcQ out
+pnpm start dQw4w9WgXcQ out
 ```
 
 ### `$ youtube-otosuyatu ...`
