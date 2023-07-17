@@ -16,7 +16,7 @@ export async function getPlayerResponse(videoId) {
 function escapeForRegexp(str) {
     return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
 }
-export async function getVideoURL(signatureCipher, basejsURL) {
+export async function getSCVideoURL(signatureCipher, basejsURL) {
     const sc = new URLSearchParams(signatureCipher);
     const basejs = await got(basejsURL).text();
     // start with "*.split("")"
@@ -34,20 +34,27 @@ export async function getVideoURL(signatureCipher, basejsURL) {
             throw new Error("s == null");
         const sig = getSignature(s);
         if (sig == null)
-            throw new Error("could not get signature");
-        const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s);
-        if (NTokenFn == null)
-            throw new Error("could not find n token function");
-        const getNToken = new Function("a", NTokenFn[1]);
-        const url = new URL(sc.get("url") ?? "");
-        const origNToken = url.searchParams.get("n");
-        const NToken = getNToken(origNToken);
-        url.searchParams.set("n", NToken);
-        return `${url.toString()}&${sc.get("sp")}=${encodeURIComponent(sig)}`;
+            throw new Error("Could not get signature");
+        return `${await _getVideoURL(sc.get("url") ?? "", basejs)}&${sc.get("sp")}=${encodeURIComponent(sig)}`;
     }
     catch (e) {
         console.error(e);
         return null;
     }
+}
+async function _getVideoURL(videoURL, basejs) {
+    const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s);
+    if (NTokenFn == null)
+        throw new Error("Could not find n token function");
+    const getNToken = new Function("a", NTokenFn[1]);
+    const url = new URL(videoURL ?? "");
+    const origNToken = url.searchParams.get("n");
+    const NToken = getNToken(origNToken);
+    url.searchParams.set("n", NToken);
+    return url.toString();
+}
+export async function getVideoURL(videoURL, basejsURL) {
+    const basejs = await got(basejsURL).text();
+    return await _getVideoURL(videoURL, basejs);
 }
 //# sourceMappingURL=index.js.map

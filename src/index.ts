@@ -36,7 +36,7 @@ function escapeForRegexp(str: string) {
   return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
-export async function getVideoURL(signatureCipher: string, basejsURL: string) {
+export async function getSCVideoURL(signatureCipher: string, basejsURL: string) {
   const sc = new URLSearchParams(signatureCipher)
   const basejs = await got(basejsURL).text()
 
@@ -55,21 +55,29 @@ export async function getVideoURL(signatureCipher: string, basejsURL: string) {
     const s = sc.get("s")
     if (s == null) throw new Error("s == null")
     const sig = getSignature(s)
-    if (sig == null) throw new Error("could not get signature")
+    if (sig == null) throw new Error("Could not get signature")
 
-    const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s)
-    if (NTokenFn == null) throw new Error("could not find n token function")
-    const getNToken = new Function("a", NTokenFn[1])
-
-    const url = new URL(sc.get("url") ?? "")
-    const origNToken = url.searchParams.get("n")
-    const NToken = getNToken(origNToken)
-    url.searchParams.set("n", NToken)
-
-    return `${url.toString()}&${sc.get("sp")}=${encodeURIComponent(sig)}`
+    return `${await _getVideoURL(sc.get("url") ?? "", basejs)}&${sc.get("sp")}=${encodeURIComponent(sig)}`
   } catch (e) {
     console.error(e)
-
     return null
   }
+}
+
+async function _getVideoURL(videoURL: string, basejs: string) {
+  const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s)
+  if (NTokenFn == null) throw new Error("Could not find n token function")
+  const getNToken = new Function("a", NTokenFn[1])
+
+  const url = new URL(videoURL ?? "")
+  const origNToken = url.searchParams.get("n")
+  const NToken = getNToken(origNToken)
+  url.searchParams.set("n", NToken)
+
+  return url.toString()
+}
+
+export async function getVideoURL(videoURL: string, basejsURL: string) {
+  const basejs = await got(basejsURL).text()
+  return await _getVideoURL(videoURL, basejs)
 }

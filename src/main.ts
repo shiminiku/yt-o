@@ -2,7 +2,7 @@
 import { writeFile } from "fs/promises"
 import { createWriteStream } from "fs"
 import { createInterface } from "readline"
-import { extractVideoId, getPlayerResponse, getVideoURL, Stream, USER_AGENT } from "./index.js"
+import { extractVideoId, getPlayerResponse, getSCVideoURL, getVideoURL, Stream, USER_AGENT } from "./index.js"
 import got from "got"
 
 function printUsage() {
@@ -156,7 +156,9 @@ if (!interactiveMode) {
 
 console.log()
 
-const url = stream.url || (await getVideoURL(stream.signatureCipher, basejsURL))
+const url = stream.url
+  ? await getVideoURL(stream.url, basejsURL)
+  : await getSCVideoURL(stream.signatureCipher, basejsURL)
 if (url == null) {
   console.error("[Error] Could not get URL")
   printUsage()
