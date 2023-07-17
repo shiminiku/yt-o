@@ -10,7 +10,7 @@
     "build": "tsc",
     "watch": "tsc-watch",
     "buildstart": "pnpm build && pnpm start",
-    "test": "node --experimental-vm-modules $(yarn bin jest)"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "bin": {
     "youtube-otosuyatu": "./dist/main.js"
@@ -25,7 +25,6 @@
     "got": "^13.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.3",
     "jest": "^29.6.1",
     "ts-node": "^10.9.1",
     "tsc-watch": "^6.0.4",
