@@ -8,6 +8,8 @@
   "scripts": {
     "start": "node --enable-source-maps ./dist/main.js",
     "build": "tsc",
+    "watch": "tsc-watch",
+    "buildstart": "pnpm build && pnpm start",
     "test": "node --experimental-vm-modules $(yarn bin jest)"
   },
   "bin": {
@@ -26,6 +28,7 @@
     "@types/jest": "^28.1.1",
     "jest": "^28.1.0",
     "ts-node": "^10.8.1",
+    "tsc-watch": "^6.0.4",
     "typescript": "^5.1.3"
   }
 }
