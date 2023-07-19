@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "main"
-    paths:
-      - "test/**"
       
   pull_request:
 
@@ -20,8 +18,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: true
+      
       - uses: actions/setup-node@v3
         with:
           node-version: latest
-      - run: yarn
-      - run: yarn test
+          cache: 'pnpm'
+        
+      - run: pnpm test
