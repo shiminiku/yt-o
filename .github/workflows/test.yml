@@ -23,5 +23,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: latest
-      - run: yarn
-      - run: yarn test
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm test
