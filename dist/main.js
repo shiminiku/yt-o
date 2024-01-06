@@ -151,6 +151,7 @@ if (download) {
     console.log(`Getting head...`);
     const head = await got(url, { method: "HEAD", headers: { "User-Agent": USER_AGENT } });
     const len = parseInt(head.headers["content-length"] ?? "-1");
+    console.log(head.headers);
     console.log(`...done`);
     const fname = `./out_${Date.now()}.bin`;
     const f = createWriteStream(`./out_${Date.now()}.bin`);
@@ -158,13 +159,13 @@ if (download) {
     let gotUntil = 0;
     while (gotUntil < len) {
         const startByte = gotUntil;
-        const endByte = Math.min(gotUntil + 2_000_000 - 1, len - 1);
+        const endByte = Math.min(gotUntil + 10_000_000 - 1, len - 1);
         console.log(`REQ ${startByte.toLocaleString()} - ${endByte.toLocaleString()} / ${len.toLocaleString()} ...`);
         const tstart = Date.now();
         const res = await got(url + `&range=${startByte}-${endByte}`, {
-            method: "POST",
+            // method: "POST",
             headers: { /* Range: `bytes=${startByte}-${endByte}`, */ "User-Agent": USER_AGENT },
-            body: "x\u0000",
+            // body: "x\u0000",
         });
         const tend = Date.now();
         const gotLen = parseInt(res.headers["content-length"] ?? "0");
