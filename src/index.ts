@@ -10,6 +10,7 @@ export interface Stream {
   signatureCipher: string
 }
 
+// export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/122 Safari/537.36"
 export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/116 Safari/537.36"
 
 export function extractVideoId(str: string) {
