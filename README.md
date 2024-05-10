@@ -1,4 +1,4 @@
-# youtube-otosuyatu
+# yt-o
 
 **Print the download URL**  
 Tested on Node.js v18.3.0 (but I think can run on other versions)
@@ -8,8 +8,8 @@ Still doesn't work, report it (idk to fix it)
 
 ## Installation
 
-1. `git clone https://github.com/owatu/youtube-otosuyatu`
-1. `cd youtube-otosuyatu`
+1. `git clone https://github.com/shiminiku/yt-o.git`
+1. `cd yt-o`
 1. `pnpm install`
 
 ### Run
@@ -51,11 +51,11 @@ open output URL and more overload... (download speed may be low, because streami
 pnpm start dQw4w9WgXcQ out
 ```
 
-### `$ youtube-otosuyatu ...`
+### `$ yt-o ...`
 
-you can run this anywhere with `youtube-otosuyatu`
+you can run this anywhere with `yt-o`
 
 ```
 $ npm link
-$ youtube-otosuyatu dQw4w9WgXcQ both
+$ yt-o dQw4w9WgXcQ both
 ```

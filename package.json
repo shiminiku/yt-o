@@ -1,10 +1,12 @@
 {
-  "private": true,
-  "name": "youtube-otosuyatu",
-  "version": "0.4.1",
+  "name": "@smnk/yt-o",
+  "version": "1.0.0-rc",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "./dist/"
+  ],
   "scripts": {
     "start": "node --enable-source-maps ./dist/main.js",
     "build": "tsc",
@@ -13,11 +15,11 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "bin": {
-    "youtube-otosuyatu": "./dist/main.js"
+    "yt-o": "./dist/main.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/owatu1234/youtube-otosuyatu.git"
+    "url": "https://github.com/shiminiku/yt-o.git"
   },
   "author": "owatu",
   "license": "MIT",
