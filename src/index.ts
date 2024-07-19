@@ -66,7 +66,7 @@ export async function getSCVideoURL(signatureCipher: string, basejsURL: string) 
 }
 
 async function _getVideoURL(videoURL: string, basejs: string) {
-  const NTokenFn = basejs.match(/function\(.\)\{(var .=.\.split\(""\),.=\[.+?return .\.join\(""\))\};/s)
+  const NTokenFn = basejs.match(/=function\(.\){(var .=String\.prototype\.split.+?return Array.prototype.join.+?)}/s)
   if (NTokenFn == null) throw new Error("Could not find n token function")
   const getNToken = new Function("a", NTokenFn[1])
 
