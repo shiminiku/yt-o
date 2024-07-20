@@ -2,7 +2,7 @@
 import { writeFile } from "fs/promises"
 import { createWriteStream } from "fs"
 import { createInterface } from "readline"
-import { extractVideoId, getPlayerResponse, getSCVideoURL, getVideoURL, Stream, USER_AGENT } from "./index.js"
+import { extractVideoId, getPlayerResponse, Format, getVideoURL, getSCVideoURL, USER_AGENT } from "./index.js"
 import got from "got"
 
 function printUsage() {
@@ -43,9 +43,9 @@ if (playerResponse == null) {
   process.exit(1)
 }
 
-let suggestStreams: Stream[] = []
+let suggestStreams: Format[] = []
 let interactiveMode = false
-let stream: Stream = {
+let stream: Format = {
   bitrate: 0,
 
   mimeType: "",

@@ -1,6 +1,13 @@
 import got from "got"
 
-export interface Stream {
+export interface PlayerResponse {
+  streamingData: {
+    adaptiveFormats: Format[]
+    formats: Format[]
+  }
+}
+
+export interface Format {
   mimeType: string
   qualityLabel: string
   projectionType: string
@@ -10,16 +17,41 @@ export interface Stream {
   signatureCipher: string
 }
 
-// export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/122 Safari/537.36"
-export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/116 Safari/537.36"
+export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
 
-export function extractVideoId(str: string) {
+/**
+ * Extracts the videoId from a URL.
+ *
+ * @param str The string containing a videoId.
+ * @returns The `videoId ([0-9a-zA-Z-_]{11})`. Returns `null` if a videoId is not found.
+ *
+ * @example
+ * ```typescript
+ * extractVideoId('https://www.youtube.com/watch?v=jNQXAC9IVRw'); // 'jNQXAC9IVRw'
+ * extractVideoId('https://www.youtube.com/'); // null
+ * ```
+ */
+export function extractVideoId(str: string): string | null {
   const match = str.match(/[0-9a-zA-Z-_]{11}/)
   return match ? match[0] : null
 }
 
+/**
+ * Fetches the PlayerResponse for a video.
+ *
+ * @param videoId The videoId to fetch.
+ * @returns A promise that resolves to an object containing the PlayerResponse and the baseJS URL for later use.
+ *
+ * @example
+ * ```typescript
+ * getPlayerResponse('jNQXAC9IVRw').then((response) => {
+ *   console.log(response.basejsURL);
+ *   console.log(response.playerResponse.streamingData.adaptiveFormats);
+ * });
+ * ```
+ */
 export async function getPlayerResponse(videoId: string): Promise<{
-  playerResponse: { streamingData: { adaptiveFormats: Stream[]; formats: Stream[] } } | null
+  playerResponse?: PlayerResponse
   basejsURL: string
 }> {
   const response = await got(`https://www.youtube.com/watch?v=${videoId}`, {
@@ -37,7 +69,26 @@ function escapeForRegexp(str: string) {
   return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
-export async function getSCVideoURL(signatureCipher: string, basejsURL: string) {
+/**
+ * Generates the optimized video URL from a SignatureCipher.
+ *
+ * @param signatureCipher SignatureCipher (a scrambled token)
+ * @param basejsURL The base URL for the YouTube JavaScript player.
+ * @returns A promise that resolves to the video URL (string) or null if the URL cannot be generate.
+ * @throws {Error}  If the video URL cannot be optimized.
+ *
+ * @example
+ * ```typescript
+ * getSCVideoURL('dQw4w9WgXcQ') => {
+ *   if (url) {
+ *     console.log('Video URL:', url);
+ *   } else {
+ *     console.error('Failed to extract video URL');
+ *   }
+ * });
+ * ```
+ */
+export async function getSCVideoURL(signatureCipher: string, basejsURL: string): Promise<string | null> {
   const sc = new URLSearchParams(signatureCipher)
   const basejs = await got(basejsURL).text()
 
@@ -78,7 +129,53 @@ async function _getVideoURL(videoURL: string, basejs: string) {
   return url.toString()
 }
 
-export async function getVideoURL(videoURL: string, basejsURL: string) {
+/**
+ * Generates the optimized video URL from a url.
+ *
+ * @param videoURL The original video URL.
+ * @param basejsURL The baseJS URL.
+ * @returns A promise that resolves to the optimized video URL (string).
+ * @throws {Error}  If the video URL cannot be optimized.
+ *
+ * @example
+ * ```typescript
+ * getVideoURL('https://rr0---sn-abcd1234.googlevideo.com/videoplayback?expire=...')
+ *   .then(url => {
+ *     console.log('Fast video URL:', url);
+ *   })
+ * ```
+ */
+export async function getVideoURL(videoURL: string, basejsURL: string): Promise<string> {
   const basejs = await got(basejsURL).text()
   return await _getVideoURL(videoURL, basejs)
+}
+
+/**
+ * Generates a video URL optimized for fast download.
+ *
+ * @param format The Format to download.
+ * @param basejsURL The baseJS URL.
+ * @returns A promise that resolves to the video URL (string) or null if the URL cannot be generated.
+ * @example
+ * ```typescript
+ *
+ * const { playerResponse, basejsURL } = await getPlayerResponse('dQw4w9WgXcQ');
+ * getStreamURL(playerResponse.streamingData.adaptiveFormats[0], basejsURL)
+ *   .then(url => {
+ *     if (url) {
+ *       console.log('video URL:', url);
+ *     } else {
+ *       console.warn('Failed to generate video URL');
+ *     }
+ *   });
+ * ```
+ */
+export async function getStreamURL(format: Format, basejsURL: string): Promise<string | null> {
+  if (format.url) {
+    return await getVideoURL(format.url, basejsURL)
+  } else if (format.signatureCipher) {
+    return await getSCVideoURL(format.signatureCipher, basejsURL)
+  } else {
+    return null
+  }
 }
