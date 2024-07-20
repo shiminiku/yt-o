@@ -1,47 +1,58 @@
 # yt-o
 
-**Print the download URL**  
-Tested on Node.js v18.3.0 (but I think can run on other versions)
+yt download lib & cli
 
-If doesn't work, run `git pull`.  
-Still doesn't work, report it (idk to fix it)
+## Install
 
-## Installation
+Install from npm...
 
-1. `git clone https://github.com/shiminiku/yt-o.git`
-1. `cd yt-o`
-1. `pnpm install`
-
-### Run
-
-```
-$ pnpm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
+```shell
+npm install @shiminiku/yt-o
 ```
 
-**Interactive mode (default)**  
+Use it!
+
+```javascript
+import { getPlayerResponse, getStreamURL } from "@shiminiku/yt-o"
+
+const { playerResponse, basejsURL } = await getPlayerResponse("dQw4w9WgXcQ")
+if (playerResponse) {
+  const url = await getStreamURL(playerResponse.streamingData.adaptiveFormats[0], basejsURL)
+  console.log("URL:", url)
+}
+```
+
+## Run in CLI
+
+```shell
+# once
+npm build
+
+npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
+```
+
+**Interactive mode (default)**
 `pnpm start dQw4w9WgXcQ`
 
-**Highest bitrate "video" only**  
-`pnpm start dQw4w9WgXcQ video`  
+**Highest bitrate "video" only**
+`pnpm start dQw4w9WgXcQ video`
 `pnpm start dQw4w9WgXcQ v`
 
-**Highest bitrate "audio" only**  
-`pnpm start dQw4w9WgXcQ audio`  
+**Highest bitrate "audio" only**
+`pnpm start dQw4w9WgXcQ audio`
 `pnpm start dQw4w9WgXcQ a`
 
-**Video and audio in one**  
-`pnpm start dQw4w9WgXcQ both`  
+**Video and audio in one**
+`pnpm start dQw4w9WgXcQ both`
 `pnpm start dQw4w9WgXcQ b`
 
-**Specify mimeype (partial match, using `mimeType.includes()`)**  
+**Specify mimeype (partial match, using `mimeType.includes()`)**
 `pnpm start dQw4w9WgXcQ mimetype audio/mp4`
 
-open output URL and more overload... (download speed may be low, because streaming)
-
-## special thanksssss
+## special thanks
 
 - [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode)
-- https://tyrrrz.me/blog/reverse-engineering-youtube
+- [Reverse-Engineering YouTube](https://tyrrrz.me/blog/reverse-engineering-youtube)
 
 ## other features
 
@@ -49,13 +60,4 @@ open output URL and more overload... (download speed may be low, because streami
 
 ```shell
 pnpm start dQw4w9WgXcQ out
-```
-
-### `$ yt-o ...`
-
-you can run this anywhere with `yt-o`
-
-```
-$ npm link
-$ yt-o dQw4w9WgXcQ both
 ```
