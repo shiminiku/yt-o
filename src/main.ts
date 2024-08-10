@@ -3,7 +3,6 @@ import { writeFile } from "fs/promises"
 import { createWriteStream } from "fs"
 import { createInterface } from "readline"
 import { extractVideoId, getPlayerResponse, Format, getVideoURL, getSCVideoURL, USER_AGENT } from "./index.js"
-import got from "got"
 
 function printUsage() {
   console.log()
@@ -169,8 +168,8 @@ if (download) {
   const dlStart = Date.now()
 
   console.log(`Getting head...`)
-  const head = await got(url, { method: "HEAD", headers: { "User-Agent": USER_AGENT } })
-  const len = parseInt(head.headers["content-length"] ?? "-1")
+  const head = await fetch(url, { method: "HEAD", headers: { "User-Agent": USER_AGENT } })
+  const len = parseInt(head.headers.get("content-length") ?? "-1")
   console.log(head.headers)
   console.log(`...done`)
 
@@ -185,14 +184,14 @@ if (download) {
 
     console.log(`REQ ${startByte.toLocaleString()} - ${endByte.toLocaleString()} / ${len.toLocaleString()} ...`)
     const tstart = Date.now()
-    const res = await got(url + `&range=${startByte}-${endByte}`, {
+    const res = await fetch(url + `&range=${startByte}-${endByte}`, {
       // method: "POST",
       headers: { /* Range: `bytes=${startByte}-${endByte}`, */ "User-Agent": USER_AGENT },
       // body: "x\u0000",
     })
     const tend = Date.now()
 
-    const gotLen = parseInt(res.headers["content-length"] ?? "0")
+    const gotLen = parseInt(res.headers.get("content-length") ?? "0")
     gotUntil += gotLen
     const speed = Math.round((gotLen / (tend - tstart)) * 1000)
     console.log(
@@ -205,7 +204,7 @@ if (download) {
       `(${speed.toLocaleString()} bytes/s)`
     )
 
-    f.write(res.rawBody)
+    f.write(new Uint8Array(await res.arrayBuffer()))
 
     const delay = Math.floor(Math.random() * 300 + 100)
     console.log("delay:", delay.toLocaleString(), "ms")

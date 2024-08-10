@@ -1,5 +1,3 @@
-import got from "got"
-
 export interface PlayerResponse {
   streamingData: {
     adaptiveFormats: Format[]
@@ -54,10 +52,10 @@ export async function getPlayerResponse(videoId: string): Promise<{
   playerResponse?: PlayerResponse
   basejsURL: string
 }> {
-  const response = await got(`https://www.youtube.com/watch?v=${videoId}`, {
+  const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
     headers: { "User-Agent": USER_AGENT },
   })
-  const body = response.body
+  const body = await resp.text()
 
   const playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1])()
   const basejsURL = `https://www.youtube.com${body.match(/[\w./]*?base\.js/)![0]}`
@@ -90,7 +88,7 @@ function escapeForRegexp(str: string) {
  */
 export async function getSCVideoURL(signatureCipher: string, basejsURL: string): Promise<string | null> {
   const sc = new URLSearchParams(signatureCipher)
-  const basejs = await got(basejsURL).text()
+  const basejs = await fetch(basejsURL).then((r) => r.text())
 
   // start with "*.split("")"
   // end with "*.join("")"
@@ -149,7 +147,7 @@ async function _getVideoURL(videoURL: string, basejs: string) {
  * ```
  */
 export async function getVideoURL(videoURL: string, basejsURL: string): Promise<string> {
-  const basejs = await got(basejsURL).text()
+  const basejs = await fetch(basejsURL).then((r) => r.text())
   return await _getVideoURL(videoURL, basejs)
 }
 
