@@ -10,9 +10,9 @@
   "scripts": {
     "start": "node --enable-source-maps ./dist/main.js",
     "build": "tsc",
-    "watch": "tsc-watch",
+    "watch": "tsc -w",
     "buildstart": "pnpm build && pnpm start",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "vitest"
   },
   "bin": {
     "yt-o": "./dist/main.js"
@@ -21,15 +21,11 @@
     "type": "git",
     "url": "https://github.com/shiminiku/yt-o.git"
   },
-  "author": "owatu",
+  "author": "shiminiku",
   "license": "MIT",
-  "dependencies": {
-    "got": "^13.0.0"
-  },
   "devDependencies": {
-    "jest": "^29.6.1",
-    "ts-node": "^10.9.1",
-    "tsc-watch": "^6.0.4",
-    "typescript": "^5.1.6"
+    "@types/node": "^22.2.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }
