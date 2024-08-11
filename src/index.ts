@@ -57,7 +57,9 @@ export async function getPlayerResponse(videoId: string): Promise<{
   })
   const body = await resp.text()
 
-  const playerResponse = new Function("return " + body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1])()
+  const match = body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)
+
+  const playerResponse = JSON.parse(match?.[1] ?? "null")
   const basejsURL = `https://www.youtube.com${body.match(/[\w./]*?base\.js/)![0]}`
 
   return { playerResponse, basejsURL }
