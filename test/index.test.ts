@@ -1,5 +1,5 @@
 import { expect, test } from "vitest"
-import { getPlayerResponse, getSCVideoURL, getStreamURL, getVideoURL } from "../src/index"
+import { generateSigCodes, getPlayerResponse, getSCVideoURL, getStreamURL, getVideoURL } from "../src/index.js"
 
 const VIDEO_ID = "jNQXAC9IVRw"
 const SC_VIDEO_ID = "dQw4w9WgXcQ"
@@ -56,4 +56,14 @@ test("getStreamURL", async () => {
 
   const resp = await fetch(videoURL, { method: "HEAD" })
   expect(resp.status).toBe(200)
+})
+
+const BASE_JS_URL = "https://www.youtube.com/s/player/28fd7348/player_ias.vflset/ja_JP/base.js"
+test("generateSigCodes", async () => {
+  const base = await fetch(BASE_JS_URL).then((r) => r.text())
+  const code = await generateSigCodes(base)
+
+  expect(code.length).toBeGreaterThan(0)
+
+  console.log(code)
 })

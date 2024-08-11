@@ -182,3 +182,44 @@ export async function getStreamURL(format: Format, basejsURL: string): Promise<s
     return null
   }
 }
+
+function extractDeSCCode(basejs: string) {
+  const decipherFunction = basejs.match(
+    /(?<fname>\w+?)=function\(.+\){(?<body>.+split\(""\);(?<operations_obj>.+?)\..+?.+?;return .+\.join\(""\))}/
+  )
+  if (decipherFunction == null) throw new Error("decipherFunction == null")
+  const operationsCode = basejs.match(new RegExp(`var ${escapeForRegexp(decipherFunction[3])}={.+?};`, "s"))?.[0]
+  if (operationsCode == null) throw new Error("operationsCode == null")
+
+  const getDeSigCode =
+    operationsCode + "\nvar " + decipherFunction[0] + `\nexport function deSC(s){return ${decipherFunction[1]}(s)}`
+
+  return getDeSigCode
+}
+
+function extractNTokenCode(basejs: string) {
+  // var ABc=[DEf]
+  const fnName = basejs.match(/^var \w+?=\[(\w+?)\]/m)?.[1]
+  if (fnName == null) throw new Error("Could not find n token function name")
+
+  const NTokenFn = basejs.match(new RegExp(`${fnName}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
+  if (NTokenFn == null) throw new Error("Could not find n token function")
+
+  const getNTokenCode = "var " + NTokenFn[0] + `\nexport function getNToken(n){return ${fnName}(n)}`
+
+  return getNTokenCode
+}
+
+/**
+ * Generates JS code from `base.js`.
+ * This is used to decrypt two types of tokens -- SignatureCipher and "n" parameter
+ *
+ * @param basejs The `base.js` from YT.
+ * @returns A ESM JavaScript code contains `deSC(s)`, `getNToken(n)` functions.
+ */
+export function generateSigCodes(basejs: string) {
+  const deSCCode = extractDeSCCode(basejs)
+  const getNTokenCode = extractNTokenCode(basejs)
+
+  return deSCCode + "\n" + getNTokenCode
+}
