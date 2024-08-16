@@ -69,6 +69,51 @@ function escapeForRegexp(str: string) {
   return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
+export async function getWatchPage(videoId: string) {
+  const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: { "User-Agent": USER_AGENT },
+  })
+  if (resp.status !== 200) {
+    throw new Error("statusCode is not 200.")
+  }
+  const body = await resp.text()
+
+  const ytcfgText = body.match(/ytcfg\.set\(({.+})\)/)?.[1]
+  const ytcfg = JSON.parse(ytcfgText ?? "null")
+
+  const prText = body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1]
+  const ppr = JSON.parse(prText ?? "null")
+
+  const basejsURL = `https://www.youtube.com${body.match(/[\w./]*?base\.js/)![0]}`
+  const basejs = await fetch(basejsURL).then((r) => r.text())
+  const signatureTimestamp = parseInt(basejs.match(/signatureTimestamp:(\d+)/)?.[1] ?? "-1")
+
+  const clientName = ytcfg.INNERTUBE_CONTEXT.client.clientName
+  const clientVersion = ytcfg.INNERTUBE_CONTEXT.client.clientVersion
+
+  try {
+    const json: any = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
+      method: "POST",
+      body: JSON.stringify({
+        context: {
+          client: {
+            clientName,
+            clientVersion,
+          },
+        },
+        contentPlaybackContext: {
+          html5Preference: "HTML5_PREF_WANTS",
+          signatureTimestamp,
+        },
+        videoId,
+      }),
+    }).then((r) => (r.status === 200 ? r.json() : Promise.reject(r.json())))
+    return { ytcfg, pagePlayerResponse: ppr, playerResponse: json, basejsURL, signatureTimestamp }
+  } catch (e: any) {
+    return { ytcfg, pagePlayerResponse: ppr, playerResponse: await e, basejsURL, signatureTimestamp }
+  }
+}
+
 /**
  * Generates the optimized video URL from a SignatureCipher.
  *
