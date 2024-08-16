@@ -69,7 +69,27 @@ function escapeForRegexp(str: string) {
   return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
-export async function getWatchPage(videoId: string) {
+/**
+ * Get watch page related infos.
+ *
+ * @param videoId The videoId to fetch.
+ * @returns A promise that resolves to an object containing watch page related infos.
+ *
+ * @example
+ * ```typescript
+ * getPlayerResponse('jNQXAC9IVRw').then((response) => {
+ *   console.log(response.basejsURL);
+ *   console.log(response.playerResponse.streamingData.adaptiveFormats);
+ * });
+ * ```
+ */
+export async function getWatchPage(videoId: string): Promise<{
+  ytcfg: any
+  pagePlayerResponse: any
+  playerResponse: any
+  basejsURL: string
+  signatureTimestamp: number
+}> {
   const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
     headers: { "User-Agent": USER_AGENT },
   })
