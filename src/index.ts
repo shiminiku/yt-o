@@ -162,14 +162,8 @@ export async function getSCVideoURL(signatureCipher: string, basejsURL: string):
   // start with "*.split("")"
   // end with "*.join("")"
   try {
-    const decipherFunction = basejs.match(
-      /\w+=function\(.+\){(?<body>.+split\(""\);(?<operations_obj>.+?)\..+?.+?;return .+\.join\(""\))}/
-    )
-    if (decipherFunction == null) throw new Error("decipherFunction == null")
-    const operationsCode = basejs.match(new RegExp(`var ${escapeForRegexp(decipherFunction[2])}={.+?};`, "s"))?.[0]
-    if (operationsCode == null) throw new Error("operationsCode == null")
-
-    const getSignature = new Function("a", operationsCode + decipherFunction[1])
+    const desc = extractDeSCCode(basejs)
+    const getSignature = new Function("s", `${desc.code}\nreturn ${desc.fnName}(s)`)
 
     const s = sc.get("s")
     if (s == null) throw new Error("s == null")
@@ -184,12 +178,8 @@ export async function getSCVideoURL(signatureCipher: string, basejsURL: string):
 }
 
 async function _getVideoURL(videoURL: string, basejs: string) {
-  const fnName = basejs.match(/^var \w+?=\[(\w+?)\]/m)?.[1]
-  if (fnName == null) throw new Error("Could not find n token function name")
-
-  const NTokenFn = basejs.match(new RegExp(`${fnName}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
-  if (NTokenFn == null) throw new Error("Could not find n token function")
-  const getNToken = new Function("a", NTokenFn[1])
+  const nToken = extractNTokenCode(basejs)
+  const getNToken = new Function("n", `${nToken.code}\nreturn ${nToken.fnName}(n)`)
 
   const url = new URL(videoURL ?? "")
   const origNToken = url.searchParams.get("n")
@@ -258,23 +248,23 @@ function extractDeSCCode(basejs: string) {
   const operationsCode = basejs.match(new RegExp(`var ${escapeForRegexp(decipherFunction[3])}={.+?};`, "s"))?.[0]
   if (operationsCode == null) throw new Error("operationsCode == null")
 
-  const getDeSigCode =
-    operationsCode + "\nvar " + decipherFunction[0] + `\nexport function deSC(s){return ${decipherFunction[1]}(s)}`
+  const getDeSigCode = operationsCode + "\nvar " + decipherFunction[0]
 
-  return getDeSigCode
+  return { code: getDeSigCode, fnName: decipherFunction[1] }
 }
 
+const NT_FNAME_REGEX = /^var [$a-zA-Z0-9]+?=\[([$a-zA-Z0-9]+?)\]/m
 function extractNTokenCode(basejs: string) {
   // var ABc=[DEf]
-  const fnName = basejs.match(/^var [$a-zA-Z0-9]+?=\[(\w+?)\]/m)?.[1]
+  const fnName = basejs.match(NT_FNAME_REGEX)?.[1]
   if (fnName == null) throw new Error("Could not find n token function name")
 
-  const NTokenFn = basejs.match(new RegExp(`${fnName}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
+  const NTokenFn = basejs.match(new RegExp(`${escapeForRegexp(fnName)}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
   if (NTokenFn == null) throw new Error("Could not find n token function")
 
-  const getNTokenCode = "var " + NTokenFn[0] + `\nexport function getNToken(n){return ${fnName}(n)}`
+  const getNTokenCode = "var " + NTokenFn[0]
 
-  return getNTokenCode
+  return { code: getNTokenCode, fnName: fnName }
 }
 
 /**
@@ -288,5 +278,10 @@ export function generateSigCodes(basejs: string) {
   const deSCCode = extractDeSCCode(basejs)
   const getNTokenCode = extractNTokenCode(basejs)
 
-  return deSCCode + "\n" + getNTokenCode
+  return (
+    deSCCode.code +
+    `\nexport function deSC(s){return ${deSCCode.fnName}(s)}\n` +
+    getNTokenCode.code +
+    `\nexport function getNToken(n){return ${getNTokenCode.fnName}(n)}`
+  )
 }
