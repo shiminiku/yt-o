@@ -266,7 +266,7 @@ function extractDeSCCode(basejs: string) {
 
 function extractNTokenCode(basejs: string) {
   // var ABc=[DEf]
-  const fnName = basejs.match(/^var \w+?=\[(\w+?)\]/m)?.[1]
+  const fnName = basejs.match(/^var [$a-zA-Z0-9]+?=\[(\w+?)\]/m)?.[1]
   if (fnName == null) throw new Error("Could not find n token function name")
 
   const NTokenFn = basejs.match(new RegExp(`${fnName}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
