@@ -19,6 +19,10 @@ test("getPlayerResponse", async () => {
 
 test("getURL", async () => {
   const { playerResponse, basejsURL } = await getPlayerResponse("jNQXAC9IVRw")
+
+  const pr = playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+
   const formats = playerResponse?.streamingData?.formats
   const url = formats?.at(-1)?.url
 
@@ -34,6 +38,10 @@ test("getURL", async () => {
 
 test("getSCURL", async () => {
   const { playerResponse, basejsURL } = await getPlayerResponse(SC_VIDEO_ID)
+
+  const pr = playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+
   const formats = playerResponse?.streamingData?.formats
   const signatureCipher = formats?.at(-1)?.signatureCipher
 
@@ -51,6 +59,10 @@ test("getSCURL", async () => {
 
 test("getStreamURL", async () => {
   const { playerResponse, basejsURL } = await getPlayerResponse(VIDEO_ID)
+
+  const pr = playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+
   const adaptiveFormats = playerResponse?.streamingData?.adaptiveFormats
   const format = adaptiveFormats?.at(-1)
 
@@ -71,10 +83,35 @@ test("generateSigCodes", async () => {
   const code = generateSigCodes(base)
 
   expect(code.length).toBeGreaterThan(0)
+  expect(code.includes("deSC(s)")).toBeTruthy()
+  expect(code.includes("getNToken(n)")).toBeTruthy()
 })
 
 test("getWatchPage", async () => {
   const player = await getWatchPage(VIDEO_ID)
-
   expect(player).toBeTruthy()
+
+  const pr = player.playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+})
+
+test("getWatchPage:getStreamURL", async () => {
+  const player = await getWatchPage(VIDEO_ID)
+  expect(player).toBeTruthy()
+
+  const pr = player.playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+
+  const adaptiveFormats = player.playerResponse?.streamingData?.adaptiveFormats
+  const format = adaptiveFormats?.at(-1)
+
+  expect(adaptiveFormats && format).toBeTruthy()
+  if (!format) throw new Error("format is undefined")
+
+  const videoURL = await getStreamURL(format, player.basejsURL)
+  if (!videoURL) throw new Error("videoURL is undefined")
+  expect(videoURL?.search(/^https:\/\/[^.]*\.googlevideo\.com/) > -1).toBe(true)
+
+  const resp = await fetch(videoURL, { method: "HEAD" })
+  expect(resp.status).toBe(200)
 })
