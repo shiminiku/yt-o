@@ -1,6 +1,6 @@
 {
   "name": "@shiminiku/yt-o",
-  "version": "2.1.0-pre.3",
+  "version": "2.1.0-pre.4",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

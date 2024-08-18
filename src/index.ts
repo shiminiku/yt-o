@@ -16,6 +16,8 @@ export interface Format {
 }
 
 export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
+export const USER_AGENT_IOS =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
 
 /**
  * Extracts the videoId from a URL.
@@ -91,7 +93,7 @@ export async function getWatchPage(videoId: string): Promise<{
   signatureTimestamp: number
 }> {
   const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: { "User-Agent": USER_AGENT },
+    headers: { "User-Agent": USER_AGENT_IOS },
   })
   if (resp.status !== 200) {
     throw new Error("statusCode is not 200.")
@@ -104,7 +106,7 @@ export async function getWatchPage(videoId: string): Promise<{
   const prText = body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1]
   const ppr = JSON.parse(prText ?? "null")
 
-  const basejsURL = `https://www.youtube.com${body.match(/[\w./]*?base\.js/)![0]}`
+  const basejsURL = `https://www.youtube.com${ytcfg.PLAYER_JS_URL}`
   const basejs = await fetch(basejsURL).then((r) => r.text())
   const signatureTimestamp = parseInt(basejs.match(/signatureTimestamp:(\d+)/)?.[1] ?? "-1")
 
