@@ -259,7 +259,9 @@ function extractNTokenCode(basejs: string) {
   const fnName = basejs.match(NT_FNAME_REGEX)?.[1]
   if (fnName == null) throw new Error("Could not find n token function name")
 
-  const NTokenFn = basejs.match(new RegExp(`${escapeForRegexp(fnName)}=function\\(.\\){(.+?return.+?join.+?)}`, "s"))
+  const NTokenFn = basejs.match(
+    new RegExp(`${escapeForRegexp(fnName)}=function\\(.\\)\\{(.+?return.+?join.+?)\\};`, "s")
+  )
   if (NTokenFn == null) throw new Error("Could not find n token function")
 
   const getNTokenCode = "var " + NTokenFn[0]
