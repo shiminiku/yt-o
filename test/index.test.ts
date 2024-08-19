@@ -18,7 +18,7 @@ test("getPlayerResponse", async () => {
 })
 
 test("getURL", async () => {
-  const { playerResponse, basejsURL } = await getPlayerResponse("jNQXAC9IVRw")
+  const { playerResponse, basejsURL } = await getPlayerResponse(VIDEO_ID)
 
   const pr = playerResponse as any
   expect(pr?.playabilityStatus?.status).toBe("OK")
