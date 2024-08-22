@@ -96,7 +96,8 @@ export async function getWatchPage(videoId: string): Promise<{
     headers: { "User-Agent": USER_AGENT_IOS },
   })
   if (resp.status !== 200) {
-    throw new Error("statusCode is not 200.")
+    resp.text()
+    throw new Error(`statusCode is not 200. it's: ${resp.status} ${resp.statusText}`, { cause: resp })
   }
   const body = await resp.text()
 
