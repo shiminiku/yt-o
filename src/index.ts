@@ -1,19 +1,4 @@
-export interface PlayerResponse {
-  streamingData: {
-    adaptiveFormats: Format[]
-    formats: Format[]
-  }
-}
-
-export interface Format {
-  mimeType: string
-  qualityLabel: string
-  projectionType: string
-  averageBitrate: number
-  bitrate: number
-  url: string
-  signatureCipher: string
-}
+import { PlayerResponse, MiniFormat, BaseFormat } from "./type.js"
 
 export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
 export const USER_AGENT_IOS =
@@ -87,8 +72,7 @@ function escapeForRegexp(str: string) {
  */
 export async function getWatchPage(videoId: string): Promise<{
   ytcfg: any
-  pagePlayerResponse: any
-  playerResponse: any
+  playerResponse: PlayerResponse
   basejsURL: string
   signatureTimestamp: number
 }> {
@@ -104,36 +88,13 @@ export async function getWatchPage(videoId: string): Promise<{
   const ytcfg = JSON.parse(ytcfgText ?? "null")
 
   const prText = body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1]
-  const ppr = JSON.parse(prText ?? "null")
+  const playerResponse = JSON.parse(prText ?? "null")
 
   const basejsURL = `https://www.youtube.com${ytcfg.PLAYER_JS_URL}`
   const basejs = await fetch(basejsURL).then((r) => r.text())
   const signatureTimestamp = parseInt(basejs.match(/signatureTimestamp:(\d+)/)?.[1] ?? "-1")
 
-  const clientName = ytcfg.INNERTUBE_CONTEXT.client.clientName
-  const clientVersion = ytcfg.INNERTUBE_CONTEXT.client.clientVersion
-
-  try {
-    const json: any = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
-      method: "POST",
-      body: JSON.stringify({
-        context: {
-          client: {
-            clientName,
-            clientVersion,
-          },
-        },
-        contentPlaybackContext: {
-          html5Preference: "HTML5_PREF_WANTS",
-          signatureTimestamp,
-        },
-        videoId,
-      }),
-    }).then((r) => (r.status === 200 ? r.json() : Promise.reject(r.json())))
-    return { ytcfg, pagePlayerResponse: ppr, playerResponse: json, basejsURL, signatureTimestamp }
-  } catch (e: any) {
-    return { ytcfg, pagePlayerResponse: ppr, playerResponse: await e, basejsURL, signatureTimestamp }
-  }
+  return { ytcfg, playerResponse, basejsURL, signatureTimestamp }
 }
 
 /**
@@ -230,7 +191,7 @@ export async function getVideoURL(videoURL: string, basejsURL: string): Promise<
  *   });
  * ```
  */
-export async function getStreamURL(format: Format, basejsURL: string): Promise<string | null> {
+export async function getStreamURL(format: MiniFormat, basejsURL: string): Promise<string | null> {
   if (format.url) {
     return await getVideoURL(format.url, basejsURL)
   } else if (format.signatureCipher) {
@@ -287,3 +248,5 @@ export function generateSigCodes(basejs: string) {
     `\nexport function getNToken(n){return ${getNTokenCode.fnName}(n)}`
   )
 }
+
+export { PlayerResponse, MiniFormat, BaseFormat }
