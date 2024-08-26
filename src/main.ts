@@ -2,7 +2,7 @@
 import { writeFile } from "fs/promises"
 import { createWriteStream } from "fs"
 import { createInterface } from "readline"
-import { extractVideoId, getPlayerResponse, Format, getVideoURL, getSCVideoURL, USER_AGENT } from "./index.js"
+import { extractVideoId, getVideoURL, getSCVideoURL, USER_AGENT, BaseFormat, getWatchPage } from "./index.js"
 
 function printUsage() {
   console.log()
@@ -36,23 +36,30 @@ if (videoId == null) {
 let download = false
 download = process.argv.includes("--download")
 
-const { playerResponse, basejsURL } = await getPlayerResponse(videoId)
+const { playerResponse, basejsURL } = await getWatchPage(videoId)
 if (playerResponse == null) {
   console.error("[Error] could not get playerResponse")
   process.exit(1)
 }
+if (playerResponse.streamingData == null) {
+  console.error("[Error] could not get streamingData")
+  process.exit(1)
+}
 
-let suggestStreams: Format[] = []
+let suggestStreams: BaseFormat[] = []
 let interactiveMode = false
-let stream: Format = {
-  bitrate: 0,
-
+let stream: BaseFormat = {
+  itag: 0,
   mimeType: "",
-  qualityLabel: "",
+  bitrate: 0,
+  initRange: { start: "", end: "" },
+  indexRange: { start: "", end: "" },
+  lastModified: "",
+  contentLength: "",
+  quality: "",
   projectionType: "",
   averageBitrate: 0,
-  url: "",
-  signatureCipher: "",
+  approxDurationMs: "",
 }
 switch (process.argv[3]) {
   case "out":
@@ -112,7 +119,7 @@ switch (process.argv[3]) {
     playerResponse.streamingData.adaptiveFormats.forEach((v, i) => {
       indexes.push(i)
       let len = `[${i}] `.length
-      if (v.qualityLabel) {
+      if ("qualityLabel" in v) {
         process.stdout.write(`[${i}] ${v.mimeType} \x1b[94m${v.qualityLabel}\x1b[m ForVR:`)
         if (v.projectionType === "MESH") {
           process.stdout.write(`\x1b[92m${v.projectionType === "MESH"}\x1b[m\n`)
@@ -157,7 +164,9 @@ console.log()
 
 const url = stream.url
   ? await getVideoURL(stream.url, basejsURL)
-  : await getSCVideoURL(stream.signatureCipher, basejsURL)
+  : stream.signatureCipher
+  ? await getSCVideoURL(stream.signatureCipher, basejsURL)
+  : null
 if (url == null) {
   console.error("[Error] Could not get URL")
   printUsage()
