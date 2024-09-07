@@ -4,6 +4,13 @@ export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safar
 export const USER_AGENT_IOS =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
 
+class RespError extends Error {
+  cause?: Response
+  constructor(msg?: string, opt?: ErrorOptions) {
+    super(msg, opt)
+  }
+}
+
 /**
  * Extracts the videoId from a URL.
  *
@@ -61,6 +68,7 @@ function escapeForRegexp(str: string) {
  *
  * @param videoId The videoId to fetch.
  * @returns A promise that resolves to an object containing watch page related infos.
+ * @throws {RespError}
  *
  * @example
  * ```typescript
@@ -80,7 +88,7 @@ export async function getWatchPage(videoId: string): Promise<{
     headers: { "User-Agent": USER_AGENT_IOS },
   })
   if (resp.status !== 200) {
-    throw new Error(`statusCode is not 200. it's: ${resp.status} ${resp.statusText}`, { cause: resp })
+    throw new RespError(`statusCode is not 200. it's: ${resp.status} ${resp.statusText}`, { cause: resp })
   }
   const body = await resp.text()
 
