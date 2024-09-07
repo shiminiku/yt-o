@@ -4,7 +4,10 @@ export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safar
 export const USER_AGENT_IOS =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
 
-class RespError extends Error {
+/**
+ * Error caused by Response
+ */
+export class RespError extends Error {
   cause?: Response
   constructor(msg?: string, opt?: ErrorOptions) {
     super(msg, opt)
