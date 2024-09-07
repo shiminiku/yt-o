@@ -9,8 +9,9 @@ export const USER_AGENT_IOS =
  */
 export class RespError extends Error {
   cause?: Response
-  constructor(msg?: string, opt?: ErrorOptions) {
+  constructor(msg?: string, opt?: ErrorOptions & { cause: Response }) {
     super(msg, opt)
+    this.cause = opt?.cause
   }
 }
 
