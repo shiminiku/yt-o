@@ -1,5 +1,7 @@
 # yt-o
 
+[![Test](https://github.com/shiminiku/yt-o/actions/workflows/test.yml/badge.svg)](https://github.com/shiminiku/yt-o/actions/workflows/test.yml)
+
 yt download lib & cli
 
 ## Install
