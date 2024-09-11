@@ -115,3 +115,11 @@ test("getWatchPage:getStreamURL", async () => {
   const resp = await fetch(videoURL, { method: "HEAD" })
   expect(resp.status).toBe(200)
 })
+
+test("getWatchPage:init", async () => {
+  const player = await getWatchPage(VIDEO_ID, { cache: "no-cache" })
+  expect(player).toBeTruthy()
+
+  const pr = player.playerResponse as any
+  expect(pr?.playabilityStatus?.status).toBe("OK")
+})

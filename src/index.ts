@@ -1,8 +1,16 @@
 import { PlayerResponse, MiniFormat, BaseFormat } from "./type.js"
 
 export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
-export const USER_AGENT_IOS =
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+export const USER_AGENT_IOS_LIST = [
+  //iPhone XR
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+  //iPhone 12 Pro
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+  //iPhone 14 Pro Max
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+  //iPhone X
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+]
 
 /**
  * Error caused by Response
@@ -67,29 +75,43 @@ function escapeForRegexp(str: string) {
   return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
+function getRandomElement<T>(array: T[]): T {
+  if (array.length === 0) {
+    throw new Error("Array is empty.")
+  }
+
+  const randomIndex = Math.floor(Math.random() * array.length)
+  return array[randomIndex]
+}
+
 /**
  * Get watch page related infos.
  *
  * @param videoId The videoId to fetch.
+ * @param init The `RequestInit` that appended just before sending. This override default implementation.
  * @returns A promise that resolves to an object containing watch page related infos.
  * @throws {RespError}
  *
  * @example
  * ```typescript
- * getPlayerResponse('jNQXAC9IVRw').then((response) => {
+ * getWatchPage('jNQXAC9IVRw', { cache: "force-cache" }).then((response) => {
  *   console.log(response.basejsURL);
  *   console.log(response.playerResponse.streamingData.adaptiveFormats);
  * });
  * ```
  */
-export async function getWatchPage(videoId: string): Promise<{
+export async function getWatchPage(
+  videoId: string,
+  init?: RequestInit
+): Promise<{
   ytcfg: any
   playerResponse: PlayerResponse
   basejsURL: string
   signatureTimestamp: number
 }> {
   const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: { "User-Agent": USER_AGENT_IOS },
+    headers: { "User-Agent": getRandomElement(USER_AGENT_IOS_LIST) },
+    ...init,
   })
   if (resp.status !== 200) {
     throw new RespError(`statusCode is not 200. it's: ${resp.status} ${resp.statusText}`, { cause: resp })
@@ -103,7 +125,7 @@ export async function getWatchPage(videoId: string): Promise<{
   const playerResponse = JSON.parse(prText ?? "null")
 
   const basejsURL = `https://www.youtube.com${ytcfg.PLAYER_JS_URL}`
-  const basejs = await fetch(basejsURL).then((r) => r.text())
+  const basejs = await fetch(basejsURL, init).then((r) => r.text())
   const signatureTimestamp = parseInt(basejs.match(/signatureTimestamp:(\d+)/)?.[1] ?? "-1")
 
   return { ytcfg, playerResponse, basejsURL, signatureTimestamp }
