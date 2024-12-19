@@ -259,7 +259,8 @@ function extractNTokenCode(basejs: string) {
   )
   if (NTokenFn == null) throw new Error("Could not find n token function")
 
-  const getNTokenCode = "var " + NTokenFn[0]
+  // Remove fast return
+  const getNTokenCode = "var " + NTokenFn[0].replace(/if\(typeof \w+==="undefined"\)return p;/, "")
 
   return { code: getNTokenCode, fnName: fnName }
 }
