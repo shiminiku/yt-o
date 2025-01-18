@@ -248,9 +248,9 @@ function extractDeSCCode(basejs: string) {
   return { code: getDeSigCode, fnName: decipherFunction[1] }
 }
 
-const NT_FNAME_REGEX = /^var [$a-zA-Z0-9]+?=\[([$a-zA-Z0-9]+?)\]/m
+const NT_FNAME_REGEX = /^var [_$a-zA-Z0-9]+?=\[([_$a-zA-Z0-9]+?)\]/m
 function extractNTokenCode(basejs: string) {
-  // var ABc=[DEf]
+  // var _Ab=[cD_]
   const fnName = basejs.match(NT_FNAME_REGEX)?.[1]
   if (fnName == null) throw new Error("Could not find n token function name")
 
@@ -260,7 +260,7 @@ function extractNTokenCode(basejs: string) {
   if (NTokenFn == null) throw new Error("Could not find n token function")
 
   // Remove fast return
-  const getNTokenCode = "var " + NTokenFn[0].replace(/if\(typeof \w+==="undefined"\)return p;/, "")
+  const getNTokenCode = "var " + NTokenFn[0].replace(/if\(typeof \w+==="undefined"\)return .;/, "")
 
   return { code: getNTokenCode, fnName: fnName }
 }
