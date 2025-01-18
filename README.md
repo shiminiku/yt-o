@@ -1,5 +1,10 @@
 # yt-o
 
+> [!WARNING]
+> **The end of "yt-o"**
+> POToken is in the way.
+> Goodbye, and see you again...
+
 [![Test](https://github.com/shiminiku/yt-o/actions/workflows/test.yml/badge.svg)](https://github.com/shiminiku/yt-o/actions/workflows/test.yml)
 [![npm version](https://badge.fury.io/js/@shiminiku%2Fyt-o.svg)](https://badge.fury.io/js/@shiminiku%2Fyt-o)
 
