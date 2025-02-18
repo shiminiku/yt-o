@@ -1,6 +1,8 @@
 import { PlayerResponse, MiniFormat, BaseFormat } from "./type.js"
 
 export const USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
+// https://github.com/yt-dlp/yt-dlp/blob/421bc72103d1faed473a451299cd17d6abb433bb/yt_dlp/extractor/youtube.py#L283
+export const USER_AGENT_TV = "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version"
 export const USER_AGENT_IOS_LIST = [
   //iPhone XR
   "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
@@ -23,6 +25,19 @@ export class RespError extends Error {
   }
 }
 
+function escapeForRegexp(str: string) {
+  return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
+}
+
+function getRandomElement<T>(array: T[]): T {
+  if (array.length === 0) {
+    throw new Error("Array is empty.")
+  }
+
+  const randomIndex = Math.floor(Math.random() * array.length)
+  return array[randomIndex]
+}
+
 /**
  * Extracts the videoId from a URL.
  *
@@ -42,6 +57,8 @@ export function extractVideoId(str: string): string | null {
 
 /**
  * Fetches the PlayerResponse for a video.
+ *
+ * @deprecated This might not work, use `getWatchPage()`
  *
  * @param videoId The videoId to fetch.
  * @returns A promise that resolves to an object containing the PlayerResponse and the baseJS URL for later use.
@@ -71,19 +88,6 @@ export async function getPlayerResponse(videoId: string): Promise<{
   return { playerResponse, basejsURL }
 }
 
-function escapeForRegexp(str: string) {
-  return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
-}
-
-function getRandomElement<T>(array: T[]): T {
-  if (array.length === 0) {
-    throw new Error("Array is empty.")
-  }
-
-  const randomIndex = Math.floor(Math.random() * array.length)
-  return array[randomIndex]
-}
-
 /**
  * Get watch page related infos.
  *
@@ -109,8 +113,8 @@ export async function getWatchPage(
   basejsURL: string
   signatureTimestamp: number
 }> {
-  const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: { "User-Agent": getRandomElement(USER_AGENT_IOS_LIST) },
+  const resp = await fetch(`https://www.youtube.com/tv`, {
+    headers: { "User-Agent": USER_AGENT_TV },
     ...init,
   })
   if (resp.status !== 200) {
@@ -121,14 +125,31 @@ export async function getWatchPage(
   const ytcfgText = body.match(/ytcfg\.set\(({.+})\)/)?.[1]
   const ytcfg = JSON.parse(ytcfgText ?? "null")
 
-  const prText = body.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/)?.[1]
-  const playerResponse = JSON.parse(prText ?? "null")
-
-  const basejsURL = `https://www.youtube.com${ytcfg.PLAYER_JS_URL}`
+  const basejsURL =
+    "https://www.youtube.com" + ytcfg.WEB_PLAYER_CONTEXT_CONFIGS.WEB_PLAYER_CONTEXT_CONFIG_ID_LIVING_ROOM_WATCH.jsUrl
   const basejs = await fetch(basejsURL, init).then((r) => r.text())
   const signatureTimestamp = parseInt(basejs.match(/signatureTimestamp:(\d+)/)?.[1] ?? "-1")
 
+  const playerResponse = await getAPIPlayer(videoId, ytcfg.INNERTUBE_CONTEXT, init)
   return { ytcfg, playerResponse, basejsURL, signatureTimestamp }
+}
+
+export async function getAPIPlayer(videoId: string, innertubeContext: any, init?: RequestInit) {
+  const resp = await fetch(`https://www.youtube.com/youtubei/v1/player?prettyPrint=false`, {
+    method: "POST",
+    headers: { "User-Agent": USER_AGENT_TV },
+    body: JSON.stringify({
+      context: innertubeContext,
+      videoId,
+    }),
+    ...init,
+  })
+  if (resp.status !== 200) {
+    throw new RespError(`statusCode is not 200. it's: ${resp.status} ${resp.statusText}`, { cause: resp })
+  }
+
+  const body = await resp.json()
+  return body as PlayerResponse
 }
 
 /**
@@ -165,7 +186,11 @@ export async function getSCVideoURL(signatureCipher: string, basejsURL: string):
     const sig = getSignature(s)
     if (sig == null) throw new Error("Could not get signature")
 
-    return `${await _getVideoURL(sc.get("url") ?? "", basejs)}&${sc.get("sp")}=${encodeURIComponent(sig)}`
+    const orgUrl = sc.get("url")
+    if (!orgUrl) throw new Error("Could not get url")
+    const url = `${orgUrl}&${sc.get("sp")}=${encodeURIComponent(sig)}`
+
+    return await _getVideoURL(url, basejs)
   } catch (e) {
     console.error(e)
     return null
@@ -237,30 +262,39 @@ export async function getStreamURL(format: MiniFormat, basejsURL: string): Promi
 
 function extractDeSCCode(basejs: string) {
   const decipherFunction = basejs.match(
-    /(?<fname>\w+?)=function\(.+\){(?<body>.+split\(""\);(?<operations_obj>.+?)\..+?.+?;return .+\.join\(""\))}/
+    /(?:(.+)=)?function(?: (\w+?))?\(.\){(.+split\(""\);(.+?)\..+?;return .\.join\(""\))}/
   )
   if (decipherFunction == null) throw new Error("decipherFunction == null")
-  const operationsCode = basejs.match(new RegExp(`var ${escapeForRegexp(decipherFunction[3])}={.+?};`, "s"))?.[0]
+
+  const varDecl = decipherFunction[1]
+  const funcDecl = decipherFunction[2]
+
+  const operationsCode = basejs.match(new RegExp(`var ${escapeForRegexp(decipherFunction[4])}={.+?};`, "s"))?.[0]
   if (operationsCode == null) throw new Error("operationsCode == null")
 
-  const getDeSigCode = operationsCode + "\nvar " + decipherFunction[0]
+  const getDeSigCode = operationsCode + "\n" + (varDecl != undefined ? "var " : "") + decipherFunction[0]
 
-  return { code: getDeSigCode, fnName: decipherFunction[1] }
+  return { code: getDeSigCode, fnName: varDecl ?? funcDecl }
 }
 
-const NT_FNAME_REGEX = /^var [_$a-zA-Z0-9]+?=\[([_$a-zA-Z0-9]+?)\]/m
+const NT_FNAME_REGEX = /^var [_$a-zA-Z0-9]+?=\[([_$a-zA-Z0-9]{3})\]/m
 function extractNTokenCode(basejs: string) {
   // var _Ab=[cD_]
   const fnName = basejs.match(NT_FNAME_REGEX)?.[1]
   if (fnName == null) throw new Error("Could not find n token function name")
 
+  const escfnName = escapeForRegexp(fnName)
+
   const NTokenFn = basejs.match(
-    new RegExp(`${escapeForRegexp(fnName)}=function\\(.\\)\\{(.+?return.+?join.+?)\\};`, "s")
+    new RegExp(`(${escfnName}=function|function ${escfnName})\\(.\\)\\{(.+?return.+?join.+?)\\}`, "s")
   )
+
   if (NTokenFn == null) throw new Error("Could not find n token function")
 
   // Remove fast return
-  const getNTokenCode = "var " + NTokenFn[0].replace(/if\(typeof \w+==="undefined"\)return .;/, "")
+  const getNTokenCode =
+    (!NTokenFn[1].startsWith("function") ? "var " : "") +
+    NTokenFn[0].replace(/if\(typeof \w+==="undefined"\)return .;/, "")
 
   return { code: getNTokenCode, fnName: fnName }
 }

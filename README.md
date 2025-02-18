@@ -1,9 +1,6 @@
 # yt-o
 
-> [!WARNING]
-> **The end of "yt-o"**
-> POToken is in the way.
-> Goodbye, and see you again...
+_**POT Ready ✅️**_ by TV
 
 [![Test](https://github.com/shiminiku/yt-o/actions/workflows/test.yml/badge.svg)](https://github.com/shiminiku/yt-o/actions/workflows/test.yml)
 [![npm version](https://badge.fury.io/js/@shiminiku%2Fyt-o.svg)](https://badge.fury.io/js/@shiminiku%2Fyt-o)
@@ -61,6 +58,7 @@ npm start <videoId> [v(ideo)|a(udio)|b(oth)|o(ut)|mimetype]
 
 - [Tyrrrz/YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode)
 - [Reverse-Engineering YouTube](https://tyrrrz.me/blog/reverse-engineering-youtube)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for TV user agent
 
 ## other features
 
