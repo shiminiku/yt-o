@@ -23,6 +23,19 @@ export class RespError extends Error {
   }
 }
 
+function escapeForRegexp(str: string) {
+  return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
+}
+
+function getRandomElement<T>(array: T[]): T {
+  if (array.length === 0) {
+    throw new Error("Array is empty.")
+  }
+
+  const randomIndex = Math.floor(Math.random() * array.length)
+  return array[randomIndex]
+}
+
 /**
  * Extracts the videoId from a URL.
  *
@@ -69,19 +82,6 @@ export async function getPlayerResponse(videoId: string): Promise<{
   const basejsURL = `https://www.youtube.com${body.match(/[\w./]*?base\.js/)![0]}`
 
   return { playerResponse, basejsURL }
-}
-
-function escapeForRegexp(str: string) {
-  return str.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
-}
-
-function getRandomElement<T>(array: T[]): T {
-  if (array.length === 0) {
-    throw new Error("Array is empty.")
-  }
-
-  const randomIndex = Math.floor(Math.random() * array.length)
-  return array[randomIndex]
 }
 
 /**
